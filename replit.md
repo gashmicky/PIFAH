@@ -11,8 +11,9 @@ A comprehensive project management application for the Programme for Investment 
 - **REC Integration**: Display of 8 Regional Economic Communities (COMESA, EAC, ECCAS, ECOWAS, IGAD, SADC, UMA, CEN-SAD) with country membership and project statistics
 - **Community of Practice**: Coming soon page for collaborative platform where health sector professionals can share ideas and best practices
 - **FAQ Section**: Comprehensive frequently asked questions covering general information, projects, RECs, technical support, and investment financing
+- **AI Chatbot Assistant**: OpenAI-powered chatbot available on all pages (public and authenticated) with contextual knowledge of PIFAH pillars, RECs, project submission process, and platform features
 
-The application features role-based access control, pillar-based color visualization, approval workflow management, REC stats tracking, public theme toggle, and responsive design with light theme default and optional dark mode.
+The application features role-based access control, pillar-based color visualization, approval workflow management, REC stats tracking, public theme toggle, AI assistance, and responsive design with light theme default and optional dark mode.
 
 ## User Preferences
 
@@ -54,6 +55,7 @@ Preferred communication style: Simple, everyday language.
 - Path aliases (@/, @shared/, @assets/) for clean import statements
 - Public routes (/faq, /community) accessible to both authenticated and unauthenticated users
 - Consistent "PIFAH" branding across all pages (replaced "Interactive Africa Map")
+- AI chatbot positioned strategically: bottom-left on MapPage to avoid map controls, bottom-right on all other pages
 
 ### Backend Architecture
 
@@ -72,6 +74,14 @@ Preferred communication style: Simple, everyday language.
 - RESTful API structure with `/api` prefix routing
 - Express middleware for JSON parsing and request logging
 - Session support infrastructure present but not implemented
+- OpenAI integration for chatbot functionality via `/api/chat` endpoint
+
+**AI Chatbot Integration**
+- OpenAI GPT-4o model integration for intelligent assistance
+- Comprehensive system prompt covering PIFAH's 5 strategic pillars, 8 RECs, project workflows, and platform features
+- Graceful handling when OPENAI_API_KEY is not configured (shows helpful user message)
+- Error handling for API failures with user-friendly error messages
+- Rate limiting: 500 max tokens per response, 0.7 temperature for balanced responses
 
 **Key Design Decisions**
 - Minimal backend for current static data visualization needs
