@@ -1,35 +1,66 @@
 import { Card } from "@/components/ui/card";
-import { Country } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
+
+interface CountryStats {
+  countryName: string;
+  totalProjects: number;
+  pillarCounts: Record<string, number>;
+  projects: Array<{ id: string; title: string; pillar: string }>;
+}
 
 interface CountryTooltipProps {
-  country: Country;
+  countryName: string;
+  stats: CountryStats | null;
   x: number;
   y: number;
 }
 
-export function CountryTooltip({ country, x, y }: CountryTooltipProps) {
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
-  };
+export function CountryTooltip({ countryName, stats, x, y }: CountryTooltipProps) {
+  if (!stats || stats.totalProjects === 0) {
+    return (
+      <Card
+        className="fixed pointer-events-none z-40 p-3 backdrop-blur-md bg-card/95 shadow-lg"
+        style={{
+          left: `${x + 15}px`,
+          top: `${y + 15}px`,
+        }}
+        data-testid="tooltip-country"
+      >
+        <h4 className="font-semibold text-sm mb-1">{countryName}</h4>
+        <p className="text-xs text-muted-foreground">No approved projects</p>
+      </Card>
+    );
+  }
 
   return (
     <Card
-      className="fixed pointer-events-none z-40 p-3 backdrop-blur-md bg-card/95 shadow-lg"
+      className="fixed pointer-events-none z-40 p-3 backdrop-blur-md bg-card/95 shadow-lg max-w-xs"
       style={{
         left: `${x + 15}px`,
         top: `${y + 15}px`,
       }}
       data-testid="tooltip-country"
     >
-      <h4 className="font-semibold text-sm mb-1">{country.name}</h4>
-      <p className="text-xs text-muted-foreground">
-        Pop: {formatNumber(country.population)}
-      </p>
-      <p className="text-xs text-muted-foreground">
-        Capital: {country.capital}
-      </p>
+      <h4 className="font-semibold text-sm mb-2">{countryName}</h4>
+      <div className="mb-2">
+        <Badge variant="default" className="text-xs" data-testid="badge-totalProjects">
+          {stats.totalProjects} {stats.totalProjects === 1 ? 'Project' : 'Projects'}
+        </Badge>
+      </div>
+      
+      {stats.totalProjects > 0 && (
+        <div className="space-y-1">
+          <p className="text-xs font-medium text-muted-foreground">By Pillar:</p>
+          {Object.entries(stats.pillarCounts).map(([pillar, count]) => (
+            <div key={pillar} className="flex justify-between items-center text-xs" data-testid={`pillar-${pillar}`}>
+              <span className="text-muted-foreground">{pillar}</span>
+              <Badge variant="secondary" className="text-xs ml-2">
+                {count}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      )}
     </Card>
   );
 }

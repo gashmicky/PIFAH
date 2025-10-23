@@ -73,6 +73,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get project statistics by country (for map visualization)
+  app.get("/api/countries/statistics", async (_req, res) => {
+    try {
+      const projects = await storage.getApprovedProjects();
+      const countries = await storage.getCountries();
+      
+      // Create a map of country statistics
+      const statsMap = new Map<string, { 
+        countryName: string;
+        totalProjects: number; 
+        pillarCounts: Record<string, number>;
+        projects: Array<{ id: string; title: string; pillar: string }>;
+      }>();
+      
+      // Initialize stats for all countries
+      countries.forEach(country => {
+        statsMap.set(country.name, {
+          countryName: country.name,
+          totalProjects: 0,
+          pillarCounts: {},
+          projects: []
+        });
+      });
+      
+      // Aggregate project data by country
+      projects.forEach(project => {
+        const stats = statsMap.get(project.country);
+        if (stats) {
+          stats.totalProjects++;
+          stats.pillarCounts[project.pifahPillar] = (stats.pillarCounts[project.pifahPillar] || 0) + 1;
+          stats.projects.push({
+            id: project.id,
+            title: project.projectTitle,
+            pillar: project.pifahPillar
+          });
+        }
+      });
+      
+      // Convert to array
+      const statisticsArray = Array.from(statsMap.entries()).map(([country, stats]) => ({
+        country,
+        ...stats
+      }));
+      
+      res.json(statisticsArray);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Backend: Get all projects with filters (admin, focal, approver only)
   app.get("/api/projects", isAuthenticated, requireRole(['admin', 'focal_person', 'approver']), async (req, res) => {
     try {

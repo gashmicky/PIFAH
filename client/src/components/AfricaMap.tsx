@@ -11,6 +11,14 @@ interface AfricaMapProps {
   zoom?: number;
 }
 
+interface CountryStats {
+  country: string;
+  countryName: string;
+  totalProjects: number;
+  pillarCounts: Record<string, number>;
+  projects: Array<{ id: string; title: string; pillar: string }>;
+}
+
 const svgIdToCountryId: Record<string, string> = {
   'Egypt': 'eg', 'Libya': 'ly', 'Tunisia': 'tn', 'Algeria': 'dz', 'Morocco': 'ma',
   'Sudan': 'sd', 'Eritrea': 'er', 'Somalia': 'so',
@@ -27,7 +35,8 @@ const svgIdToCountryId: Record<string, string> = {
 };
 
 export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: AfricaMapProps) {
-  const [hoveredCountry, setHoveredCountry] = useState<Country | null>(null);
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const svgContainerRef = useRef<HTMLDivElement>(null);
 
@@ -35,8 +44,17 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
     queryKey: ['/api/countries'],
   });
 
+  const { data: statistics = [] } = useQuery<CountryStats[]>({
+    queryKey: ['/api/countries/statistics'],
+  });
+
   const { data: regionColors = {} } = useQuery<Record<string, string>>({
     queryKey: ['/api/region-colors'],
+  });
+
+  const statsMap = new Map<string, CountryStats>();
+  statistics.forEach(stat => {
+    statsMap.set(stat.country, stat);
   });
 
   const filteredCountries = countries.filter((country) =>
@@ -56,7 +74,6 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
     svgElement.setAttribute('height', '100%');
     svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     
-    // Apply zoom
     const viewBox = svgElement.viewBox.baseVal;
     const scaledWidth = viewBox.width / zoom;
     const scaledHeight = viewBox.height / zoom;
@@ -86,9 +103,16 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
       const isHighlighted = !searchQuery ||
         filteredCountries.some(c => c.id === country.id);
 
-      const fillColor = viewMode === 'region'
-        ? (regionColors[country.region] || '#CBD5E1')
-        : '#CBD5E1';
+      const stats = statsMap.get(country.name);
+      const hasProjects = stats && stats.totalProjects > 0;
+
+      let fillColor = '#CBD5E1';
+      
+      if (viewMode === 'region') {
+        fillColor = regionColors[country.region] || '#CBD5E1';
+      } else if (hasProjects) {
+        fillColor = '#10B981';
+      }
 
       path.setAttribute('fill', fillColor);
       path.setAttribute('stroke', '#94A3B8');
@@ -97,9 +121,14 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
       path.style.cursor = isHighlighted ? 'pointer' : 'default';
       path.style.transition = 'all 0.3s ease';
 
+      if (selectedCountry === country.name) {
+        path.setAttribute('stroke', '#3B82F6');
+        path.setAttribute('stroke-width', '2');
+      }
+
       const handleMouseEnter = () => {
         if (isHighlighted) {
-          setHoveredCountry(country);
+          setHoveredCountry(country.name);
           path.style.filter = 'brightness(1.3)';
         }
       };
@@ -113,6 +142,7 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
         e.stopPropagation();
         if (isHighlighted) {
           console.log('Country clicked:', country.name);
+          setSelectedCountry(country.name);
           onCountryClick(country);
         }
       };
@@ -132,11 +162,13 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
     return () => {
       cleanupFunctions.forEach(cleanup => cleanup());
     };
-  }, [searchQuery, viewMode, filteredCountries, onCountryClick, countries, regionColors, zoom]);
+  }, [searchQuery, viewMode, filteredCountries, onCountryClick, countries, regionColors, zoom, statsMap, selectedCountry]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({ x: e.clientX, y: e.clientY });
   };
+
+  const hoveredStats = hoveredCountry ? statsMap.get(hoveredCountry) || null : null;
 
   return (
     <div
@@ -161,7 +193,8 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
 
       {hoveredCountry && (
         <CountryTooltip
-          country={hoveredCountry}
+          countryName={hoveredCountry}
+          stats={hoveredStats}
           x={mousePosition.x}
           y={mousePosition.y}
         />
