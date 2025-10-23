@@ -122,8 +122,8 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
       path.style.transition = 'all 0.3s ease';
 
       if (selectedCountry === country.name) {
-        path.setAttribute('stroke', '#3B82F6');
-        path.setAttribute('stroke-width', '2');
+        path.setAttribute('stroke', '#10B981'); // Bold green color
+        path.setAttribute('stroke-width', '1.5'); // Thin border
       }
 
       const handleMouseEnter = () => {

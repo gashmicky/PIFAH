@@ -381,7 +381,7 @@ export default function Landing() {
                   <img 
                     src={settings.logoUrl} 
                     alt="PIFAH Logo" 
-                    className="h-12 w-auto max-w-[100px] object-contain"
+                    className="h-16 w-auto max-w-[160px] md:h-20 md:max-w-[200px] object-contain"
                     data-testid="img-logo-footer"
                   />
                 ) : (
