@@ -137,13 +137,15 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
 
   return (
     <div
-      className="relative w-full h-full overflow-hidden bg-background flex items-center justify-center p-8"
+      className="relative w-full h-full overflow-visible flex items-center justify-center p-4"
       onMouseMove={handleMouseMove}
       data-testid="map-container"
+      style={{ background: 'transparent' }}
     >
       <div
         ref={svgContainerRef}
-        className="w-full h-full max-w-5xl max-h-full"
+        className="w-full h-full"
+        style={{ maxWidth: '100%', maxHeight: '100%' }}
         dangerouslySetInnerHTML={{ __html: africaMapSvg }}
       />
 

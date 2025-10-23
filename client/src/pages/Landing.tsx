@@ -105,7 +105,7 @@ export default function Landing() {
         </section>
 
         {/* Interactive Map Section - Main Feature */}
-        <section id="map" className="w-full py-8">
+        <section id="map" className="w-full bg-slate-50 dark:bg-slate-800 py-8">
           <div className="container mx-auto px-4 mb-6">
             <div className="text-center">
               <h3 className="text-3xl font-bold mb-2">Explore Africa's Health Projects</h3>
@@ -116,9 +116,9 @@ export default function Landing() {
           </div>
 
           <div className="w-full">
-            <div className="flex flex-col lg:flex-row" style={{ height: '800px' }}>
-              {/* Map - 65% width */}
-              <div className="flex-1 relative bg-slate-100 dark:bg-slate-900">
+            <div className="flex flex-col lg:flex-row min-h-screen lg:h-[900px]">
+              {/* Map - 70% width */}
+              <div className="flex-1 relative bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
                 <div className="absolute top-6 left-6 right-6 z-20 max-w-md">
                   <SearchBar
                     value={searchQuery}
@@ -127,13 +127,15 @@ export default function Landing() {
                   />
                 </div>
                 
-                <div className="absolute inset-0">
-                  <AfricaMap
-                    onCountryClick={setSelectedCountry}
-                    searchQuery={searchQuery}
-                    viewMode="default"
-                    zoom={zoom}
-                  />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-full h-full">
+                    <AfricaMap
+                      onCountryClick={setSelectedCountry}
+                      searchQuery={searchQuery}
+                      viewMode="default"
+                      zoom={zoom}
+                    />
+                  </div>
                   
                   <div className="absolute bottom-6 left-6 z-30">
                     <MapLegend />
@@ -150,8 +152,8 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Info Panel - 35% width */}
-              <div className="w-full lg:w-[35%] bg-background border-l overflow-y-auto">
+              {/* Info Panel - 30% width */}
+              <div className="w-full lg:w-[30%] bg-white dark:bg-slate-950 border-l overflow-y-auto">
                 {selectedCountry ? (
                   <CountryDetailsPanel
                     country={selectedCountry}
