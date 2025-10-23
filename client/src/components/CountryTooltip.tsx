@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Country } from "@shared/africaData";
+import { Country } from "@shared/schema";
 
 interface CountryTooltipProps {
   country: Country;

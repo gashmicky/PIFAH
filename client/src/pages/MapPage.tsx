@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Globe } from "lucide-react";
+import { Link } from "wouter";
+import { Globe, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SearchBar } from "@/components/SearchBar";
@@ -7,7 +8,8 @@ import { MapLegend } from "@/components/MapLegend";
 import { MapControls } from "@/components/MapControls";
 import { AfricaMap } from "@/components/AfricaMap";
 import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
-import { Country } from "@shared/africaData";
+import { Country } from "@shared/schema";
+import { Card } from "@/components/ui/card";
 
 type ViewMode = 'default' | 'region';
 
@@ -62,37 +64,56 @@ export default function MapPage() {
           >
             Regions
           </Button>
+          <Link href="/admin">
+            <Button variant="ghost" size="sm" data-testid="button-admin">
+              <Settings className="h-4 w-4 mr-2" />
+              Admin
+            </Button>
+          </Link>
           <ThemeToggle />
         </div>
       </header>
 
-      <main className="flex-1 relative">
-        <AfricaMap
-          onCountryClick={setSelectedCountry}
-          searchQuery={searchQuery}
-          viewMode={viewMode}
-        />
+      <main className="flex-1 flex overflow-hidden">
+        <div className="flex-1 relative">
+          <AfricaMap
+            onCountryClick={setSelectedCountry}
+            searchQuery={searchQuery}
+            viewMode={viewMode}
+          />
 
-        <div className="absolute bottom-6 left-6 z-30">
-          <MapLegend />
+          <div className="absolute bottom-6 left-6 z-30">
+            <MapLegend />
+          </div>
+
+          <div className="absolute bottom-6 right-6 z-30">
+            <MapControls
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onReset={handleReset}
+              zoom={zoom}
+            />
+          </div>
         </div>
 
-        <div className="absolute bottom-6 right-6 z-30">
-          <MapControls
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onReset={handleReset}
-            zoom={zoom}
-          />
+        <div className="w-2/5 border-l bg-card overflow-y-auto">
+          {selectedCountry ? (
+            <CountryDetailsPanel
+              country={selectedCountry}
+              onClose={() => setSelectedCountry(null)}
+              isStatic
+            />
+          ) : (
+            <div className="p-6 h-full flex flex-col items-center justify-center text-center">
+              <Globe className="h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Select a Country</h3>
+              <p className="text-sm text-muted-foreground">
+                Click on any country on the map to view detailed information
+              </p>
+            </div>
+          )}
         </div>
       </main>
-
-      {selectedCountry && (
-        <CountryDetailsPanel
-          country={selectedCountry}
-          onClose={() => setSelectedCountry(null)}
-        />
-      )}
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Country, africaCountries, regionColors } from "@shared/africaData";
+import { useQuery } from "@tanstack/react-query";
+import { Country } from "@shared/schema";
 import { CountryTooltip } from "./CountryTooltip";
+import africaMapSvg from "@/assets/africa-map.svg?raw";
 
 interface AfricaMapProps {
   onCountryClick: (country: Country) => void;
@@ -8,7 +10,6 @@ interface AfricaMapProps {
   viewMode: 'default' | 'region';
 }
 
-// Map SVG IDs to our country data
 const svgIdToCountryId: Record<string, string> = {
   'Egypt': 'eg', 'Libya': 'ly', 'Tunisia': 'tn', 'Algeria': 'dz', 'Morocco': 'ma',
   'Sudan': 'sd', 'Eritrea': 'er', 'Somalia': 'so',
@@ -27,47 +28,34 @@ const svgIdToCountryId: Record<string, string> = {
 export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapProps) {
   const [hoveredCountry, setHoveredCountry] = useState<Country | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isLoaded, setIsLoaded] = useState(false);
-  const objectRef = useRef<HTMLObjectElement>(null);
+  const svgContainerRef = useRef<HTMLDivElement>(null);
 
-  const filteredCountries = africaCountries.filter((country) =>
+  const { data: countries = [] } = useQuery<Country[]>({
+    queryKey: ['/api/countries'],
+  });
+
+  const { data: regionColors = {} } = useQuery<Record<string, string>>({
+    queryKey: ['/api/region-colors'],
+  });
+
+  const filteredCountries = countries.filter((country) =>
     country.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   useEffect(() => {
-    if (!objectRef.current) return;
+    if (!svgContainerRef.current || countries.length === 0) return;
 
-    const handleLoad = () => {
-      console.log('SVG object loaded');
-      const svgDoc = objectRef.current?.contentDocument;
-      if (!svgDoc) {
-        console.error('No content document');
-        return;
-      }
+    const svgElement = svgContainerRef.current.querySelector('svg');
+    if (!svgElement) {
+      console.error('SVG element not found');
+      return;
+    }
 
-      const svgElement = svgDoc.querySelector('svg');
-      if (!svgElement) {
-        console.error('No SVG element in document');
-        return;
-      }
+    svgElement.setAttribute('width', '100%');
+    svgElement.setAttribute('height', '100%');
+    svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      console.log('SVG element found');
-      setIsLoaded(true);
-    };
-
-    objectRef.current.addEventListener('load', handleLoad);
-    return () => {
-      objectRef.current?.removeEventListener('load', handleLoad);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!objectRef.current || !isLoaded) return;
-
-    const svgDoc = objectRef.current.contentDocument;
-    if (!svgDoc) return;
-
-    const paths = svgDoc.querySelectorAll('path[id]');
+    const paths = svgElement.querySelectorAll('path[id]');
     console.log(`Found ${paths.length} country paths`);
 
     const cleanupFunctions: (() => void)[] = [];
@@ -76,7 +64,7 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
       const path = pathElement as SVGPathElement;
       const svgId = path.id;
       const countryId = svgIdToCountryId[svgId];
-      const country = africaCountries.find(c => c.id === countryId);
+      const country = countries.find(c => c.id === countryId);
 
       if (!country) {
         path.setAttribute('fill', 'hsl(var(--muted))');
@@ -89,7 +77,7 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
         filteredCountries.some(c => c.id === country.id);
 
       const fillColor = viewMode === 'region'
-        ? regionColors[country.region]
+        ? (regionColors[country.region] || 'hsl(var(--muted))')
         : 'hsl(var(--muted))';
 
       path.setAttribute('fill', fillColor);
@@ -131,7 +119,7 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
     return () => {
       cleanupFunctions.forEach(cleanup => cleanup());
     };
-  }, [isLoaded, searchQuery, viewMode, filteredCountries, onCountryClick]);
+  }, [searchQuery, viewMode, filteredCountries, onCountryClick, countries, regionColors]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({ x: e.clientX, y: e.clientY });
@@ -139,19 +127,14 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
 
   return (
     <div
-      className="relative w-full h-full overflow-hidden bg-background flex items-center justify-center"
+      className="relative w-full h-full overflow-hidden bg-background flex items-center justify-center p-8"
       onMouseMove={handleMouseMove}
       data-testid="map-container"
     >
-      {!isLoaded && (
-        <div className="text-muted-foreground">Loading map...</div>
-      )}
-      <object
-        ref={objectRef}
-        data="/africa-map.svg"
-        type="image/svg+xml"
-        className="w-full h-full max-w-4xl max-h-full"
-        aria-label="Interactive map of Africa"
+      <div
+        ref={svgContainerRef}
+        className="w-full h-full max-w-5xl max-h-full"
+        dangerouslySetInnerHTML={{ __html: africaMapSvg }}
       />
 
       {hoveredCountry && (
