@@ -38,6 +38,14 @@ export default function AdminPage() {
             </Button>
           </Link>
           <ThemeToggle />
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.location.href = "/api/logout"}
+            data-testid="button-logout"
+          >
+            Logout
+          </Button>
         </div>
       </header>
 

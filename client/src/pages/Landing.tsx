@@ -1,8 +1,28 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Globe, Users, TrendingUp, Shield, CheckCircle2 } from "lucide-react";
+import { AfricaMap } from "@/components/AfricaMap";
+import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
+import { SearchBar } from "@/components/SearchBar";
+import { MapLegend } from "@/components/MapLegend";
+import { Country } from "@shared/schema";
 
 export default function Landing() {
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch public projects data
+  const { data: publicProjects = [] } = useQuery<Array<{
+    id: string;
+    country: string;
+    pifahPillar: string;
+    projectTitle: string;
+  }>>({
+    queryKey: ['/api/projects/public'],
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-muted">
       {/* Header */}
@@ -37,22 +57,22 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <main className="flex-1">
-        <section className="container mx-auto px-4 py-16 md:py-24">
+        {/* Hero Section */}
+        <section className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
               Transforming Africa's Health Sector
             </div>
             
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
               Unlocking Africa's Health{" "}
               <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Investment Opportunity
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               PIFAH is Africa's catalytic platform for mobilizing domestic resources, unlocking blended capital, and transforming health systems across the continent.
             </p>
 
@@ -61,10 +81,87 @@ export default function Landing() {
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}>
-                Learn More
+              <Button size="lg" variant="outline" onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}>
+                View Map
               </Button>
             </div>
+          </div>
+        </section>
+
+        {/* Interactive Map Section */}
+        <section id="map" className="container mx-auto px-4 py-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold mb-2">Explore Africa's Health Projects</h3>
+              <p className="text-muted-foreground">
+                {publicProjects.length} Approved Projects | Click on any country to explore
+              </p>
+            </div>
+
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex flex-col lg:flex-row h-[600px]">
+                  {/* Map */}
+                  <div className="flex-1 relative bg-background">
+                    <div className="p-4 border-b">
+                      <SearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        placeholder="Search countries..."
+                      />
+                    </div>
+                    
+                    <div className="h-[calc(100%-60px)] relative">
+                      <AfricaMap
+                        onCountryClick={setSelectedCountry}
+                        searchQuery={searchQuery}
+                        viewMode="region"
+                      />
+                      
+                      <div className="absolute bottom-4 left-4 z-30">
+                        <MapLegend />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info Panel */}
+                  <div className="w-full lg:w-2/5 border-l bg-card overflow-y-auto">
+                    {selectedCountry ? (
+                      <CountryDetailsPanel
+                        country={selectedCountry}
+                        onClose={() => setSelectedCountry(null)}
+                        isStatic
+                      />
+                    ) : (
+                      <div className="p-6 h-full flex flex-col items-center justify-center text-center">
+                        <Globe className="h-16 w-16 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Select a Country</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Click on any country on the map to view health investment projects
+                        </p>
+                        {publicProjects.length > 0 && (
+                          <div className="mt-4 w-full">
+                            <h4 className="text-sm font-semibold mb-2">Recent Projects</h4>
+                            <div className="space-y-2">
+                              {publicProjects.slice(0, 3).map((project: any) => (
+                                <div key={project.id} className="p-3 rounded-lg bg-muted/50 text-left">
+                                  <p className="text-sm font-medium">{project.projectTitle}</p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-xs text-muted-foreground">{project.country}</span>
+                                    <span className="text-xs">•</span>
+                                    <span className="text-xs text-primary">{project.pifahPillar}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 

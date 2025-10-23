@@ -102,8 +102,6 @@ export class DatabaseStorage implements IStorage {
     pillar?: string;
     submittedBy?: string;
   }): Promise<Project[]> {
-    let query = db.select().from(projects);
-    
     if (filters) {
       const conditions = [];
       if (filters.status) conditions.push(eq(projects.status, filters.status));
@@ -112,11 +110,18 @@ export class DatabaseStorage implements IStorage {
       if (filters.submittedBy) conditions.push(eq(projects.submittedBy, filters.submittedBy));
       
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        return db
+          .select()
+          .from(projects)
+          .where(and(...conditions))
+          .orderBy(desc(projects.createdAt));
       }
     }
     
-    return query.orderBy(desc(projects.createdAt));
+    return db
+      .select()
+      .from(projects)
+      .orderBy(desc(projects.createdAt));
   }
 
   async getApprovedProjects(): Promise<Project[]> {
