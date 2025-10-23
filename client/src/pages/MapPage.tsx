@@ -55,7 +55,7 @@ export default function MapPage() {
           ) : (
             <Globe className="h-6 w-6 text-primary" />
           )}
-          <h1 className="text-xl font-semibold">Interactive Africa Map</h1>
+          <h1 className="text-xl font-semibold">PIFAH</h1>
         </div>
         
         <div className="flex-1 max-w-md mx-4">

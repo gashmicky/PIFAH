@@ -11,37 +11,34 @@ import AdminPage from "@/pages/AdminPage";
 import FocalPersonPage from "@/pages/FocalPersonPage";
 import ApproverPage from "@/pages/ApproverPage";
 import SubmitProjectPage from "@/pages/SubmitProjectPage";
+import FAQ from "@/pages/FAQ";
+import CommunityOfPractice from "@/pages/CommunityOfPractice";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   const { isAuthenticated, isLoading, isAdmin, isFocalPerson, isApprover, user } = useAuth();
 
-  // Show landing page while loading or if not authenticated
-  if (isLoading || !isAuthenticated) {
-    return <Landing />;
-  }
-
-  // Redirect to appropriate dashboard based on role
-  const getDefaultRoute = () => {
-    if (isAdmin) return "/admin";
-    if (isFocalPerson) return "/focal-person";
-    if (isApprover) return "/approver";
-    return "/";
-  };
-
-  // Show authenticated routes with role-based access
+  // Public routes accessible to everyone
   return (
     <Switch>
-      <Route path="/" component={MapPage} />
-      <Route path="/submit-project" component={SubmitProjectPage} />
+      <Route path="/faq" component={FAQ} />
+      <Route path="/community" component={CommunityOfPractice} />
+      
+      {/* Conditional routing based on authentication */}
+      <Route path="/">
+        {isLoading || !isAuthenticated ? <Landing /> : <MapPage />}
+      </Route>
+      <Route path="/submit-project">
+        {isAuthenticated ? <SubmitProjectPage /> : <Landing />}
+      </Route>
       <Route path="/admin">
-        {isAdmin ? <AdminPage /> : <MapPage />}
+        {isAdmin ? <AdminPage /> : <Landing />}
       </Route>
       <Route path="/focal-person">
-        {isFocalPerson || isAdmin ? <FocalPersonPage /> : <MapPage />}
+        {isFocalPerson || isAdmin ? <FocalPersonPage /> : <Landing />}
       </Route>
       <Route path="/approver">
-        {isApprover || isAdmin ? <ApproverPage /> : <MapPage />}
+        {isApprover || isAdmin ? <ApproverPage /> : <Landing />}
       </Route>
       <Route component={NotFound} />
     </Switch>

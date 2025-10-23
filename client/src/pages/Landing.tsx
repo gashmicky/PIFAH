@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Globe, Users, TrendingUp, Shield, CheckCircle2, Map } from "lucide-react";
+import { ArrowRight, Globe, Users, TrendingUp, Shield, CheckCircle2, Map, HelpCircle } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { AfricaMap } from "@/components/AfricaMap";
 import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
 import { SearchBar } from "@/components/SearchBar";
@@ -80,6 +82,7 @@ export default function Landing() {
             </div>
             
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button
                 variant="ghost"
                 onClick={() => window.location.href = "/api/login"}
@@ -98,7 +101,7 @@ export default function Landing() {
           </div>
           
           {/* Navigation Menu */}
-          <nav className="flex items-center justify-center gap-2 pt-2 border-t">
+          <nav className="flex items-center justify-center gap-2 pt-2 border-t flex-wrap">
             <Button
               variant="ghost"
               size="sm"
@@ -124,6 +127,26 @@ export default function Landing() {
               <Map className="h-4 w-4 mr-1" />
               Explore Map
             </Button>
+            <Link href="/community">
+              <Button
+                variant="ghost"
+                size="sm"
+                data-testid="button-nav-community"
+              >
+                <Users className="h-4 w-4 mr-1" />
+                Community of Practice
+              </Button>
+            </Link>
+            <Link href="/faq">
+              <Button
+                variant="ghost"
+                size="sm"
+                data-testid="button-nav-faq"
+              >
+                <HelpCircle className="h-4 w-4 mr-1" />
+                FAQ
+              </Button>
+            </Link>
           </nav>
         </div>
       </header>
