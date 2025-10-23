@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Globe, Users, TrendingUp, Shield, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Globe, Users, TrendingUp, Shield, CheckCircle2, Map } from "lucide-react";
 import { AfricaMap } from "@/components/AfricaMap";
 import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
 import { SearchBar } from "@/components/SearchBar";
@@ -58,42 +58,73 @@ export default function Landing() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-muted">
       {/* Header */}
       <header className="border-b bg-card/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {settings?.logoUrl ? (
-              <img 
-                src={settings.logoUrl} 
-                alt="PIFAH Logo" 
-                className="h-16 w-auto max-w-[140px] md:h-20 md:max-w-[180px] object-contain"
-                data-testid="img-logo"
-              />
-            ) : (
-              <div className="h-14 w-14 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-                <Globe className="h-7 w-7 text-primary-foreground" />
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              {settings?.logoUrl ? (
+                <img 
+                  src={settings.logoUrl} 
+                  alt="PIFAH Logo" 
+                  className="h-16 w-auto max-w-[140px] md:h-20 md:max-w-[180px] object-contain"
+                  data-testid="img-logo"
+                />
+              ) : (
+                <div className="h-14 w-14 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                  <Globe className="h-7 w-7 text-primary-foreground" />
+                </div>
+              )}
+              <div>
+                <h1 className="text-xl font-bold">PIFAH</h1>
+                <p className="text-xs text-muted-foreground">Programme for Investment and Financing in Africa's Health Sector</p>
               </div>
-            )}
-            <div>
-              <h1 className="text-xl font-bold">PIFAH</h1>
-              <p className="text-xs text-muted-foreground">Programme for Investment and Financing in Africa's Health Sector</p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => window.location.href = "/api/login"}
+                data-testid="button-login"
+              >
+                Login
+              </Button>
+              <Button
+                onClick={() => window.location.href = "/api/login"}
+                data-testid="button-register"
+              >
+                Register
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          {/* Navigation Menu */}
+          <nav className="flex items-center justify-center gap-2 pt-2 border-t">
             <Button
               variant="ghost"
-              onClick={() => window.location.href = "/api/login"}
-              data-testid="button-login"
+              size="sm"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              data-testid="button-nav-home"
             >
-              Login
+              Home
             </Button>
             <Button
-              onClick={() => window.location.href = "/api/login"}
-              data-testid="button-register"
+              variant="ghost"
+              size="sm"
+              onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+              data-testid="button-nav-about"
             >
-              Register
-              <ArrowRight className="ml-2 h-4 w-4" />
+              About
             </Button>
-          </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}
+              data-testid="button-nav-explore-map"
+            >
+              <Map className="h-4 w-4 mr-1" />
+              Explore Map
+            </Button>
+          </nav>
         </div>
       </header>
 
@@ -205,7 +236,7 @@ export default function Landing() {
                 ) : (
                   <div className="p-6 h-full flex flex-col">
                     <div className="text-center mb-6">
-                      <Globe className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <Map className="h-16 w-16 text-primary mx-auto mb-4" />
                       <h3 className="text-xl font-semibold mb-2">Select a Country</h3>
                       <p className="text-sm text-muted-foreground">
                         Click on any country to view health investment projects and details
@@ -289,36 +320,39 @@ export default function Landing() {
 
         {/* Stats Section */}
         <section className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <Card className="text-center hover-elevate">
-              <CardContent className="pt-4 pb-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <Globe className="h-5 w-5 text-primary" />
+          <div className="flex flex-wrap items-center justify-center gap-8 max-w-4xl mx-auto">
+            <div className="flex flex-col items-center hover-elevate transition-all duration-300">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                <div className="relative h-32 w-32 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 flex flex-col items-center justify-center">
+                  <Globe className="h-8 w-8 text-primary mb-1" />
+                  <h3 className="text-2xl font-bold">55</h3>
                 </div>
-                <h3 className="text-2xl font-bold">55</h3>
-                <p className="text-sm text-muted-foreground">African Countries</p>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-sm text-muted-foreground mt-3 font-medium">African Countries</p>
+            </div>
 
-            <Card className="text-center hover-elevate">
-              <CardContent className="pt-4 pb-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="h-5 w-5 text-primary" />
+            <div className="flex flex-col items-center hover-elevate transition-all duration-300">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                <div className="relative h-32 w-32 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 flex flex-col items-center justify-center">
+                  <TrendingUp className="h-8 w-8 text-primary mb-1" />
+                  <h3 className="text-2xl font-bold">$259B</h3>
                 </div>
-                <h3 className="text-2xl font-bold">$259B</h3>
-                <p className="text-sm text-muted-foreground">Projected Market by 2030</p>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-sm text-muted-foreground mt-3 font-medium">Projected Market by 2030</p>
+            </div>
 
-            <Card className="text-center hover-elevate">
-              <CardContent className="pt-4 pb-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <Users className="h-5 w-5 text-primary" />
+            <div className="flex flex-col items-center hover-elevate transition-all duration-300">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                <div className="relative h-32 w-32 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 flex flex-col items-center justify-center">
+                  <Users className="h-8 w-8 text-primary mb-1" />
+                  <h3 className="text-2xl font-bold">16M</h3>
                 </div>
-                <h3 className="text-2xl font-bold">16M</h3>
-                <p className="text-sm text-muted-foreground">Potential New Jobs</p>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-sm text-muted-foreground mt-3 font-medium">Potential New Jobs</p>
+            </div>
           </div>
         </section>
 
@@ -358,17 +392,23 @@ export default function Landing() {
             <h4 className="text-2xl font-bold mb-4">Five Strategic Investment Pillars</h4>
             <div className="grid gap-3">
               {[
-                "Health Infrastructure & Diagnostics",
-                "Local Manufacturing of Medical Products",
-                "Digital Health & Artificial Intelligence",
-                "Research & Development and Innovation",
-                "Human Capital Development"
-              ].map((pillar, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover-elevate">
-                  <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{pillar}</span>
-                </div>
-              ))}
+                { text: "Health Infrastructure & Diagnostics", pillar: "Diagnostics & Imaging" },
+                { text: "Local Manufacturing of Medical Products", pillar: "Local Manufacturing" },
+                { text: "Digital Health & Artificial Intelligence", pillar: "Digital Health & AI" },
+                { text: "Research & Development and Innovation", pillar: "Health Infrastructure" },
+                { text: "Human Capital Development", pillar: "Human Capital Development" }
+              ].map((item, index) => {
+                const pillarColor = PILLAR_COLORS[item.pillar]?.primary || 'hsl(151, 75%, 45%)';
+                return (
+                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover-elevate">
+                    <CheckCircle2 
+                      className="h-5 w-5 mt-0.5 flex-shrink-0" 
+                      style={{ color: pillarColor }}
+                    />
+                    <span className="text-sm">{item.text}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

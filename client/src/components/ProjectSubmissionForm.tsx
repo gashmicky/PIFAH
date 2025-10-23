@@ -237,9 +237,9 @@ export function ProjectSubmissionForm() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-5 lg:grid-cols-10 w-full mb-6">
+            <TabsList className="flex flex-wrap w-full mb-6 h-auto gap-1 p-2">
               {TABS.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value} data-testid={`tab-${tab.value}`}>
+                <TabsTrigger key={tab.value} value={tab.value} data-testid={`tab-${tab.value}`} className="flex-shrink-0">
                   {tab.label}
                 </TabsTrigger>
               ))}

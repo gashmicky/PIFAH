@@ -19,12 +19,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, CheckCircle2, Clock, XCircle, Eye, Download, FileText } from "lucide-react";
+import { Search, Filter, CheckCircle2, Clock, XCircle, Eye, Download, FileText, X } from "lucide-react";
 import { PILLAR_LIST } from "@/data/pillarColors";
 import { format } from "date-fns";
 import type { Project } from "@shared/schema";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ProjectsTableProps {
   roleFilter?: "all" | "pending_review" | "pending_approval";
@@ -286,6 +294,7 @@ export function ProjectsTable({ roleFilter = "all", showAllColumns = true }: Pro
   const uniqueCountries = Array.from(new Set(projects.map(p => p.country))).sort();
 
   return (
+    <>
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -450,5 +459,173 @@ export function ProjectsTable({ roleFilter = "all", showAllColumns = true }: Pro
         </div>
       </CardContent>
     </Card>
+
+    {/* Project Details Dialog */}
+    <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+      <DialogContent className="max-w-4xl max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl">{selectedProject?.projectTitle}</DialogTitle>
+          <DialogDescription>
+            Complete project details and information
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-[70vh] pr-4">
+          {selectedProject && (
+            <div className="space-y-6">
+              {/* General Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">General Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Country</p>
+                    <p className="font-medium">{selectedProject.country}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Region</p>
+                    <p className="font-medium">{selectedProject.region}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">PIFAH Pillar</p>
+                    <Badge variant="outline">{selectedProject.pifahPillar}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Status</p>
+                    {getStatusBadge(selectedProject.status)}
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Project Type</p>
+                    <p className="font-medium">{selectedProject.projectType || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Current Stage</p>
+                    <p className="font-medium">{selectedProject.currentStage || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Summary */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Project Summary</h3>
+                <p className="text-sm">{selectedProject.projectSummary}</p>
+              </div>
+
+              {/* Contact Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Contact Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Implementing Entity</p>
+                    <p className="font-medium">{selectedProject.implementingEntity}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Contact Person</p>
+                    <p className="font-medium">{selectedProject.contactPerson}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-sm text-muted-foreground">Contact Details</p>
+                    <p className="font-medium">{selectedProject.contactDetails}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Financial Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Financial Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Estimated Investment</p>
+                    <p className="font-medium">{selectedProject.estimatedInvestment || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Funding Sources</p>
+                    <p className="font-medium">{selectedProject.fundingSources || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Expected ROI</p>
+                    <p className="font-medium">{selectedProject.expectedROI || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Investment Timeline</p>
+                    <p className="font-medium">{selectedProject.investmentTimeline || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Strategic Information */}
+              {selectedProject.strategicRationale && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-primary">Strategic Rationale</h3>
+                  <p className="text-sm">{selectedProject.strategicRationale}</p>
+                </div>
+              )}
+
+              {/* Market Information */}
+              {selectedProject.marketOpportunity && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-primary">Market Opportunity</h3>
+                  <p className="text-sm">{selectedProject.marketOpportunity}</p>
+                </div>
+              )}
+
+              {/* Impact */}
+              {selectedProject.expectedImpact && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-primary">Expected Impact</h3>
+                  <p className="text-sm">{selectedProject.expectedImpact}</p>
+                </div>
+              )}
+
+              {/* Workflow Status */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Workflow Status</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Submitted At</p>
+                    <p className="font-medium">
+                      {selectedProject.submittedAt 
+                        ? format(new Date(selectedProject.submittedAt), "MMM dd, yyyy HH:mm")
+                        : "N/A"}
+                    </p>
+                  </div>
+                  {selectedProject.reviewedBy && (
+                    <>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Reviewed By</p>
+                        <p className="font-medium">{selectedProject.reviewedBy}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Reviewed At</p>
+                        <p className="font-medium">
+                          {selectedProject.reviewedAt 
+                            ? format(new Date(selectedProject.reviewedAt), "MMM dd, yyyy HH:mm")
+                            : "N/A"}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                  {selectedProject.approvedBy && (
+                    <>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Approved By</p>
+                        <p className="font-medium">{selectedProject.approvedBy}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Approved At</p>
+                        <p className="font-medium">
+                          {selectedProject.approvedAt 
+                            ? format(new Date(selectedProject.approvedAt), "MMM dd, yyyy HH:mm")
+                            : "N/A"}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
