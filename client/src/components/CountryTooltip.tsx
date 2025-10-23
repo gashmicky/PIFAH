@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PILLAR_COLORS } from "@/data/pillarColors";
 
 interface CountryStats {
   countryName: string;
@@ -51,14 +52,17 @@ export function CountryTooltip({ countryName, stats, x, y }: CountryTooltipProps
       {stats.totalProjects > 0 && (
         <div className="space-y-1">
           <p className="text-xs font-medium text-muted-foreground">By Pillar:</p>
-          {Object.entries(stats.pillarCounts).map(([pillar, count]) => (
-            <div key={pillar} className="flex justify-between items-center text-xs" data-testid={`pillar-${pillar}`}>
-              <span className="text-muted-foreground">{pillar}</span>
-              <Badge variant="secondary" className="text-xs ml-2">
-                {count}
-              </Badge>
-            </div>
-          ))}
+          {Object.entries(stats.pillarCounts).map(([pillar, count]) => {
+            const pillarColor = PILLAR_COLORS[pillar]?.primary || 'hsl(200, 70%, 60%)';
+            return (
+              <div key={pillar} className="flex justify-between items-center text-xs" data-testid={`pillar-${pillar}`}>
+                <span style={{ color: pillarColor }} className="font-medium">{pillar}</span>
+                <Badge variant="secondary" className="text-xs ml-2">
+                  {count}
+                </Badge>
+              </div>
+            );
+          })}
         </div>
       )}
     </Card>

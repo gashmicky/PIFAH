@@ -19,10 +19,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, CheckCircle2, Clock, XCircle, Eye, Download } from "lucide-react";
+import { Search, Filter, CheckCircle2, Clock, XCircle, Eye, Download, FileText } from "lucide-react";
 import { PILLAR_LIST } from "@/data/pillarColors";
 import { format } from "date-fns";
 import type { Project } from "@shared/schema";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface ProjectsTableProps {
   roleFilter?: "all" | "pending_review" | "pending_approval";
@@ -209,6 +211,66 @@ export function ProjectsTable({ roleFilter = "all", showAllColumns = true }: Pro
     URL.revokeObjectURL(url);
   };
 
+  const exportToPDF = () => {
+    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
+    
+    // Add title
+    doc.setFontSize(16);
+    doc.setTextColor(22, 163, 74); // Green color
+    doc.text('PIFAH Projects Export', 14, 15);
+    
+    // Add export date
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated: ${format(new Date(), "yyyy-MM-dd HH:mm")}`, 14, 22);
+    doc.text(`Total Projects: ${filteredProjects.length}`, 14, 27);
+    
+    // Prepare table data
+    const tableData = filteredProjects.map(p => [
+      p.projectTitle,
+      p.country,
+      p.pifahPillar,
+      p.status,
+      p.implementingEntity,
+      p.estimatedInvestment || 'N/A',
+      p.submittedAt ? format(new Date(p.submittedAt), "yyyy-MM-dd") : '',
+    ]);
+    
+    // Generate table
+    autoTable(doc, {
+      startY: 32,
+      head: [['Project Title', 'Country', 'PIFAH Pillar', 'Status', 'Implementing Entity', 'Investment', 'Submitted']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [22, 163, 74], // Green
+        textColor: [255, 255, 255],
+        fontSize: 9,
+        fontStyle: 'bold',
+      },
+      bodyStyles: {
+        fontSize: 8,
+        cellPadding: 3,
+      },
+      alternateRowStyles: {
+        fillColor: [245, 247, 250],
+      },
+      columnStyles: {
+        0: { cellWidth: 50 }, // Project Title
+        1: { cellWidth: 30 }, // Country
+        2: { cellWidth: 45 }, // PIFAH Pillar
+        3: { cellWidth: 25 }, // Status
+        4: { cellWidth: 45 }, // Implementing Entity
+        5: { cellWidth: 30 }, // Investment
+        6: { cellWidth: 25 }, // Submitted
+      },
+      margin: { top: 32 },
+    });
+    
+    // Save the PDF
+    doc.save(`pifah-projects-${format(new Date(), "yyyy-MM-dd-HHmm")}.pdf`);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -237,6 +299,15 @@ export function ProjectsTable({ roleFilter = "all", showAllColumns = true }: Pro
             >
               <Download className="w-4 h-4 mr-2" />
               Export CSV
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={exportToPDF}
+              data-testid="button-export-pdf"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Export PDF
             </Button>
           </div>
         </div>
