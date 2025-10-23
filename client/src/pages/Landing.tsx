@@ -9,6 +9,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { MapLegend } from "@/components/MapLegend";
 import { MapControls } from "@/components/MapControls";
 import { PillarStatsBar } from "@/components/PillarStatsBar";
+import { RECStatsBar } from "@/components/RECStatsBar";
 import { PILLAR_COLORS } from "@/data/pillarColors";
 import { Country } from "@shared/schema";
 
@@ -260,6 +261,11 @@ export default function Landing() {
             </p>
           </div>
           <PillarStatsBar />
+          
+          {/* REC Stats Section */}
+          <div className="mt-8">
+            <RECStatsBar />
+          </div>
         </section>
 
         {/* Stats Section */}

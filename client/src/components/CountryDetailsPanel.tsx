@@ -1,9 +1,10 @@
-import { X, FolderOpen, Target, Building2 } from "lucide-react";
+import { X, FolderOpen, Target, Building2, Globe2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Country } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import { getRECsForCountry, REC_INFO } from "@/data/recData";
 
 interface CountryDetailsPanelProps {
   country: Country;
@@ -25,6 +26,7 @@ export function CountryDetailsPanel({ country, onClose, isStatic = false }: Coun
   });
 
   const countryStats = statistics.find(s => s.country === country.name);
+  const countryRECs = getRECsForCountry(country.name);
 
   const content = (
     <div className={isStatic ? "p-6 space-y-6" : ""}>
@@ -33,9 +35,11 @@ export function CountryDetailsPanel({ country, onClose, isStatic = false }: Coun
           <h2 className="text-2xl font-semibold" data-testid={`text-country-${country.id}`}>
             {country.name}
           </h2>
-          <Badge variant="secondary" className="mt-2">
-            {country.region}
-          </Badge>
+          <div className="flex gap-2 mt-2 flex-wrap">
+            <Badge variant="secondary">
+              {country.region}
+            </Badge>
+          </div>
         </div>
         <Button
           variant="ghost"
@@ -46,6 +50,34 @@ export function CountryDetailsPanel({ country, onClose, isStatic = false }: Coun
           <X className="h-5 w-5" />
         </Button>
       </div>
+
+      {countryRECs.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+            <Globe2 className="h-4 w-4" />
+            Regional Economic Communities (RECs)
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {countryRECs.map((rec) => (
+              <Badge 
+                key={rec} 
+                variant="outline" 
+                className="bg-primary/5 border-primary/20"
+                data-testid={`badge-rec-${rec}`}
+              >
+                {rec}
+              </Badge>
+            ))}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {countryRECs.map((rec, index) => (
+              <div key={rec} className="mt-1">
+                <span className="font-medium">{rec}</span>: {REC_INFO[rec]?.name}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {countryStats && countryStats.totalProjects > 0 ? (
