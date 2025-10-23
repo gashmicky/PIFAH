@@ -8,6 +8,7 @@ interface AfricaMapProps {
   onCountryClick: (country: Country) => void;
   searchQuery: string;
   viewMode: 'default' | 'region';
+  zoom?: number;
 }
 
 const svgIdToCountryId: Record<string, string> = {
@@ -25,7 +26,7 @@ const svgIdToCountryId: Record<string, string> = {
   'Cabinda': 'ao', 'Zanzibar': 'tz'
 };
 
-export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapProps) {
+export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: AfricaMapProps) {
   const [hoveredCountry, setHoveredCountry] = useState<Country | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const svgContainerRef = useRef<HTMLDivElement>(null);
@@ -54,6 +55,15 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
     svgElement.setAttribute('width', '100%');
     svgElement.setAttribute('height', '100%');
     svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    
+    // Apply zoom
+    const viewBox = svgElement.viewBox.baseVal;
+    const scaledWidth = viewBox.width / zoom;
+    const scaledHeight = viewBox.height / zoom;
+    const offsetX = (viewBox.width - scaledWidth) / 2;
+    const offsetY = (viewBox.height - scaledHeight) / 2;
+    
+    svgElement.setAttribute('viewBox', `${offsetX} ${offsetY} ${scaledWidth} ${scaledHeight}`);
 
     const paths = svgElement.querySelectorAll('path[id]');
     console.log(`Found ${paths.length} country paths`);
@@ -67,8 +77,8 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
       const country = countries.find(c => c.id === countryId);
 
       if (!country) {
-        path.setAttribute('fill', 'hsl(var(--muted))');
-        path.setAttribute('stroke', 'hsl(var(--border))');
+        path.setAttribute('fill', '#CBD5E1');
+        path.setAttribute('stroke', '#94A3B8');
         path.setAttribute('stroke-width', '0.5');
         return;
       }
@@ -77,11 +87,11 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
         filteredCountries.some(c => c.id === country.id);
 
       const fillColor = viewMode === 'region'
-        ? (regionColors[country.region] || 'hsl(var(--muted))')
-        : 'hsl(var(--muted))';
+        ? (regionColors[country.region] || '#CBD5E1')
+        : '#CBD5E1';
 
       path.setAttribute('fill', fillColor);
-      path.setAttribute('stroke', 'hsl(var(--border))');
+      path.setAttribute('stroke', '#94A3B8');
       path.setAttribute('stroke-width', '0.5');
       path.style.opacity = isHighlighted ? '1' : '0.3';
       path.style.cursor = isHighlighted ? 'pointer' : 'default';
@@ -119,7 +129,7 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
     return () => {
       cleanupFunctions.forEach(cleanup => cleanup());
     };
-  }, [searchQuery, viewMode, filteredCountries, onCountryClick, countries, regionColors]);
+  }, [searchQuery, viewMode, filteredCountries, onCountryClick, countries, regionColors, zoom]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({ x: e.clientX, y: e.clientY });

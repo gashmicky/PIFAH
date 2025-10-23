@@ -105,112 +105,110 @@ export default function Landing() {
         </section>
 
         {/* Interactive Map Section - Main Feature */}
-        <section id="map" className="container mx-auto px-4 py-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-6">
+        <section id="map" className="w-full py-8">
+          <div className="container mx-auto px-4 mb-6">
+            <div className="text-center">
               <h3 className="text-3xl font-bold mb-2">Explore Africa's Health Projects</h3>
               <p className="text-muted-foreground text-lg">
                 {publicProjects.length} Approved Projects Across the Continent
               </p>
             </div>
+          </div>
 
-            <Card className="overflow-hidden border-2">
-              <CardContent className="p-0">
-                <div className="flex flex-col lg:flex-row" style={{ height: '700px' }}>
-                  {/* Map - 60% width */}
-                  <div className="flex-1 relative bg-background">
-                    <div className="p-4 border-b bg-card/50">
-                      <SearchBar
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        placeholder="Search countries on the map..."
-                      />
-                    </div>
-                    
-                    <div className="absolute inset-0 top-[72px]">
-                      <AfricaMap
-                        onCountryClick={setSelectedCountry}
-                        searchQuery={searchQuery}
-                        viewMode="region"
-                        zoom={zoom}
-                      />
-                      
-                      <div className="absolute bottom-6 left-6 z-30">
-                        <MapLegend />
-                      </div>
-
-                      <div className="absolute bottom-6 right-6 z-30">
-                        <MapControls
-                          onZoomIn={handleZoomIn}
-                          onZoomOut={handleZoomOut}
-                          onReset={handleReset}
-                          zoom={zoom}
-                        />
-                      </div>
-                    </div>
+          <div className="w-full">
+            <div className="flex flex-col lg:flex-row" style={{ height: '800px' }}>
+              {/* Map - 65% width */}
+              <div className="flex-1 relative bg-slate-100 dark:bg-slate-900">
+                <div className="absolute top-6 left-6 right-6 z-20 max-w-md">
+                  <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search countries on the map..."
+                  />
+                </div>
+                
+                <div className="absolute inset-0">
+                  <AfricaMap
+                    onCountryClick={setSelectedCountry}
+                    searchQuery={searchQuery}
+                    viewMode="default"
+                    zoom={zoom}
+                  />
+                  
+                  <div className="absolute bottom-6 left-6 z-30">
+                    <MapLegend />
                   </div>
 
-                  {/* Info Panel - 40% width */}
-                  <div className="w-full lg:w-2/5 border-l bg-card overflow-y-auto">
-                    {selectedCountry ? (
-                      <CountryDetailsPanel
-                        country={selectedCountry}
-                        onClose={() => setSelectedCountry(null)}
-                        isStatic
-                      />
-                    ) : (
-                      <div className="p-6 h-full flex flex-col">
-                        <div className="text-center mb-6">
-                          <Globe className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                          <h3 className="text-xl font-semibold mb-2">Select a Country</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Click on any country to view health investment projects and details
-                          </p>
-                        </div>
-
-                        {publicProjects.length > 0 && (
-                          <div className="flex-1 overflow-y-auto">
-                            <h4 className="text-sm font-semibold mb-3 px-2">Recent Approved Projects</h4>
-                            <div className="space-y-3">
-                              {publicProjects.slice(0, 5).map((project) => (
-                                <Card key={project.id} className="hover-elevate">
-                                  <CardContent className="p-4">
-                                    <p className="text-sm font-medium mb-2">{project.projectTitle}</p>
-                                    <div className="flex items-center gap-2">
-                                      <Globe className="h-3 w-3 text-muted-foreground" />
-                                      <span className="text-xs text-muted-foreground">{project.country}</span>
-                                      <span className="text-xs">•</span>
-                                      <span className="text-xs text-primary font-medium">{project.pifahPillar}</span>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {publicProjects.length === 0 && (
-                          <Card className="mt-4">
-                            <CardContent className="p-4 text-center">
-                              <p className="text-sm text-muted-foreground">
-                                No approved projects yet. Be the first to submit!
-                              </p>
-                              <Button 
-                                size="sm" 
-                                className="mt-3"
-                                onClick={() => window.location.href = "/api/login"}
-                              >
-                                Submit Project
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        )}
-                      </div>
-                    )}
+                  <div className="absolute bottom-6 right-6 z-30">
+                    <MapControls
+                      onZoomIn={handleZoomIn}
+                      onZoomOut={handleZoomOut}
+                      onReset={handleReset}
+                      zoom={zoom}
+                    />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* Info Panel - 35% width */}
+              <div className="w-full lg:w-[35%] bg-background border-l overflow-y-auto">
+                {selectedCountry ? (
+                  <CountryDetailsPanel
+                    country={selectedCountry}
+                    onClose={() => setSelectedCountry(null)}
+                    isStatic
+                  />
+                ) : (
+                  <div className="p-6 h-full flex flex-col">
+                    <div className="text-center mb-6">
+                      <Globe className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">Select a Country</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Click on any country to view health investment projects and details
+                      </p>
+                    </div>
+
+                    {publicProjects.length > 0 && (
+                      <div className="flex-1 overflow-y-auto">
+                        <h4 className="text-sm font-semibold mb-3 px-2">Recent Approved Projects</h4>
+                        <div className="space-y-3">
+                          {publicProjects.slice(0, 5).map((project) => (
+                            <Card key={project.id} className="hover-elevate">
+                              <CardContent className="p-4">
+                                <p className="text-sm font-medium mb-2">{project.projectTitle}</p>
+                                <div className="flex items-center gap-2">
+                                  <Globe className="h-3 w-3 text-muted-foreground" />
+                                  <span className="text-xs text-muted-foreground">{project.country}</span>
+                                  <span className="text-xs">•</span>
+                                  <span className="text-xs text-primary font-medium">{project.pifahPillar}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {publicProjects.length === 0 && (
+                      <Card className="mt-4">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-sm text-muted-foreground">
+                            No approved projects yet. Be the first to submit!
+                          </p>
+                          <Button 
+                            size="sm" 
+                            className="mt-3"
+                            onClick={() => window.location.href = "/api/login"}
+                          >
+                            Submit Project
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </section>
 
