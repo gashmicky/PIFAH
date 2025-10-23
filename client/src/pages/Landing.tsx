@@ -52,9 +52,18 @@ export default function Landing() {
       <header className="border-b bg-card/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-              <Globe className="h-6 w-6 text-primary-foreground" />
-            </div>
+            {settings?.logoUrl ? (
+              <img 
+                src={settings.logoUrl} 
+                alt="PIFAH Logo" 
+                className="h-12 w-12 object-contain"
+                data-testid="img-logo"
+              />
+            ) : (
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <Globe className="h-6 w-6 text-primary-foreground" />
+              </div>
+            )}
             <div>
               <h1 className="text-xl font-bold">PIFAH</h1>
               <p className="text-xs text-muted-foreground">Programme for Investment and Financing in Africa's Health Sector</p>

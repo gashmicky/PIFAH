@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Settings, ArrowLeft, Plus } from "lucide-react";
+import { Settings, ArrowLeft, Plus, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,10 +8,20 @@ import { CountryForm } from "@/components/CountryForm";
 import { ColorCustomizer } from "@/components/ColorCustomizer";
 import { CountryList } from "@/components/CountryList";
 import { AppSettings } from "@/components/AppSettings";
+import { useQuery } from "@tanstack/react-query";
 
 export default function AdminPage() {
   const [showCountryForm, setShowCountryForm] = useState(false);
   const [editingCountryId, setEditingCountryId] = useState<string | null>(null);
+
+  // Fetch app settings for logo
+  const { data: settings } = useQuery<{
+    id: string;
+    logoUrl: string | null;
+    bannerImageUrl: string | null;
+  }>({
+    queryKey: ['/api/settings'],
+  });
 
   const handleEditCountry = (countryId: string) => {
     setEditingCountryId(countryId);
@@ -27,7 +37,16 @@ export default function AdminPage() {
     <div className="h-screen flex flex-col">
       <header className="h-16 border-b px-4 flex items-center justify-between gap-4 bg-card">
         <div className="flex items-center gap-3">
-          <Settings className="h-6 w-6 text-primary" />
+          {settings?.logoUrl ? (
+            <img 
+              src={settings.logoUrl} 
+              alt="PIFAH Logo" 
+              className="h-10 w-10 object-contain"
+              data-testid="img-logo-admin"
+            />
+          ) : (
+            <Settings className="h-6 w-6 text-primary" />
+          )}
           <h1 className="text-xl font-semibold">Admin Dashboard</h1>
         </div>
 

@@ -10,6 +10,7 @@ import { AfricaMap } from "@/components/AfricaMap";
 import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
 import { Country } from "@shared/schema";
 import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
 
 type ViewMode = 'default' | 'region';
 
@@ -18,6 +19,15 @@ export default function MapPage() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('region');
   const [zoom, setZoom] = useState(1);
+
+  // Fetch app settings for logo
+  const { data: settings } = useQuery<{
+    id: string;
+    logoUrl: string | null;
+    bannerImageUrl: string | null;
+  }>({
+    queryKey: ['/api/settings'],
+  });
 
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + 0.5, 4));
@@ -35,7 +45,16 @@ export default function MapPage() {
     <div className="h-screen flex flex-col">
       <header className="h-16 border-b px-4 flex items-center justify-between gap-4 bg-card flex-wrap">
         <div className="flex items-center gap-3">
-          <Globe className="h-6 w-6 text-primary" />
+          {settings?.logoUrl ? (
+            <img 
+              src={settings.logoUrl} 
+              alt="PIFAH Logo" 
+              className="h-10 w-10 object-contain"
+              data-testid="img-logo-map"
+            />
+          ) : (
+            <Globe className="h-6 w-6 text-primary" />
+          )}
           <h1 className="text-xl font-semibold">Interactive Africa Map</h1>
         </div>
         

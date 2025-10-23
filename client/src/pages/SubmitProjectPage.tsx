@@ -3,14 +3,33 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText } from "lucide-react";
 import { Link } from "wouter";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useQuery } from "@tanstack/react-query";
 
 export default function SubmitProjectPage() {
+  // Fetch app settings for logo
+  const { data: settings } = useQuery<{
+    id: string;
+    logoUrl: string | null;
+    bannerImageUrl: string | null;
+  }>({
+    queryKey: ['/api/settings'],
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-muted">
       <header className="border-b bg-card/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <FileText className="h-6 w-6 text-primary" />
+            {settings?.logoUrl ? (
+              <img 
+                src={settings.logoUrl} 
+                alt="PIFAH Logo" 
+                className="h-12 w-12 object-contain"
+                data-testid="img-logo-submit"
+              />
+            ) : (
+              <FileText className="h-6 w-6 text-primary" />
+            )}
             <div>
               <h1 className="text-xl font-bold">Submit Project</h1>
               <p className="text-xs text-muted-foreground">PIFAH Project Submission Form</p>
