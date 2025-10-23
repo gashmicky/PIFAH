@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Settings, ArrowLeft, Plus, Globe } from "lucide-react";
+import { Settings, ArrowLeft, Plus, Globe, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +8,7 @@ import { CountryForm } from "@/components/CountryForm";
 import { ColorCustomizer } from "@/components/ColorCustomizer";
 import { CountryList } from "@/components/CountryList";
 import { AppSettings } from "@/components/AppSettings";
+import { ProjectsTable } from "@/components/ProjectsTable";
 import { useQuery } from "@tanstack/react-query";
 
 export default function AdminPage() {
@@ -71,8 +72,11 @@ export default function AdminPage() {
 
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-6xl mx-auto">
-          <Tabs defaultValue="countries" className="w-full">
-            <TabsList className="grid w-full max-w-2xl grid-cols-3">
+          <Tabs defaultValue="projects" className="w-full">
+            <TabsList className="grid w-full max-w-3xl grid-cols-4">
+              <TabsTrigger value="projects" data-testid="tab-projects">
+                All Projects
+              </TabsTrigger>
               <TabsTrigger value="countries" data-testid="tab-countries">
                 Country Management
               </TabsTrigger>
@@ -83,6 +87,17 @@ export default function AdminPage() {
                 App Settings
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="projects" className="mt-6 space-y-6">
+              <div>
+                <h2 className="text-2xl font-semibold">All Submitted Projects</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  View and manage all project submissions with comprehensive filtering and approval tracking
+                </p>
+              </div>
+
+              <ProjectsTable showAllColumns={true} />
+            </TabsContent>
 
             <TabsContent value="countries" className="mt-6 space-y-6">
               <div className="flex items-center justify-between">

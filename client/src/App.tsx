@@ -8,23 +8,41 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/Landing";
 import MapPage from "@/pages/MapPage";
 import AdminPage from "@/pages/AdminPage";
+import FocalPersonPage from "@/pages/FocalPersonPage";
+import ApproverPage from "@/pages/ApproverPage";
 import SubmitProjectPage from "@/pages/SubmitProjectPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isAdmin, isFocalPerson, isApprover, user } = useAuth();
 
   // Show landing page while loading or if not authenticated
   if (isLoading || !isAuthenticated) {
     return <Landing />;
   }
 
-  // Show authenticated routes
+  // Redirect to appropriate dashboard based on role
+  const getDefaultRoute = () => {
+    if (isAdmin) return "/admin";
+    if (isFocalPerson) return "/focal-person";
+    if (isApprover) return "/approver";
+    return "/";
+  };
+
+  // Show authenticated routes with role-based access
   return (
     <Switch>
       <Route path="/" component={MapPage} />
       <Route path="/submit-project" component={SubmitProjectPage} />
-      <Route path="/admin" component={AdminPage} />
+      <Route path="/admin">
+        {isAdmin ? <AdminPage /> : <MapPage />}
+      </Route>
+      <Route path="/focal-person">
+        {isFocalPerson || isAdmin ? <FocalPersonPage /> : <MapPage />}
+      </Route>
+      <Route path="/approver">
+        {isApprover || isAdmin ? <ApproverPage /> : <MapPage />}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
