@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CountryForm } from "@/components/CountryForm";
 import { ColorCustomizer } from "@/components/ColorCustomizer";
 import { CountryList } from "@/components/CountryList";
+import { AppSettings } from "@/components/AppSettings";
 
 export default function AdminPage() {
   const [showCountryForm, setShowCountryForm] = useState(false);
@@ -52,12 +53,15 @@ export default function AdminPage() {
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-6xl mx-auto">
           <Tabs defaultValue="countries" className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-2xl grid-cols-3">
               <TabsTrigger value="countries" data-testid="tab-countries">
                 Country Management
               </TabsTrigger>
               <TabsTrigger value="colors" data-testid="tab-colors">
                 Color Settings
+              </TabsTrigger>
+              <TabsTrigger value="app-settings" data-testid="tab-app-settings">
+                App Settings
               </TabsTrigger>
             </TabsList>
 
@@ -98,6 +102,19 @@ export default function AdminPage() {
                 </div>
 
                 <ColorCustomizer />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="app-settings" className="mt-6">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-semibold">App Settings</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Upload logo and banner images for your application
+                  </p>
+                </div>
+
+                <AppSettings />
               </div>
             </TabsContent>
           </Tabs>

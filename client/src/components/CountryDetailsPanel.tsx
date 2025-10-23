@@ -1,8 +1,9 @@
-import { X, MapPin, Users, Maximize, DollarSign } from "lucide-react";
+import { X, FolderOpen, Target, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Country } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 
 interface CountryDetailsPanelProps {
   country: Country;
@@ -10,10 +11,20 @@ interface CountryDetailsPanelProps {
   isStatic?: boolean;
 }
 
+interface CountryStats {
+  country: string;
+  countryName: string;
+  totalProjects: number;
+  pillarCounts: Record<string, number>;
+  projects: Array<{ id: string; title: string; pillar: string }>;
+}
+
 export function CountryDetailsPanel({ country, onClose, isStatic = false }: CountryDetailsPanelProps) {
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
+  const { data: statistics = [] } = useQuery<CountryStats[]>({
+    queryKey: ['/api/countries/statistics'],
+  });
+
+  const countryStats = statistics.find(s => s.country === country.name);
 
   const content = (
     <div className={isStatic ? "p-6 space-y-6" : ""}>
@@ -23,7 +34,7 @@ export function CountryDetailsPanel({ country, onClose, isStatic = false }: Coun
             {country.name}
           </h2>
           <Badge variant="secondary" className="mt-2">
-            {country.region} Africa
+            {country.region}
           </Badge>
         </div>
         <Button
@@ -37,56 +48,61 @@ export function CountryDetailsPanel({ country, onClose, isStatic = false }: Coun
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <MapPin className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <p className="text-sm text-muted-foreground">Capital</p>
-            <p className="font-medium" data-testid="text-capital">{country.capital}</p>
-          </div>
-        </div>
+        {countryStats && countryStats.totalProjects > 0 ? (
+          <>
+            <div className="flex items-center gap-3">
+              <FolderOpen className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm text-muted-foreground">Total Projects</p>
+                <p className="font-semibold text-lg" data-testid="text-total-projects">
+                  {countryStats.totalProjects} {countryStats.totalProjects === 1 ? 'Project' : 'Projects'}
+                </p>
+              </div>
+            </div>
 
-        <div className="flex items-center gap-3">
-          <Users className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <p className="text-sm text-muted-foreground">Population</p>
-            <p className="font-mono font-semibold" data-testid="text-population">
-              {formatNumber(country.population)}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Maximize className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <p className="text-sm text-muted-foreground">Area</p>
-            <p className="font-mono font-semibold" data-testid="text-area">
-              {formatNumber(country.area)} km²
-            </p>
-          </div>
-        </div>
-
-        {country.gdp && (
-          <div className="flex items-center gap-3">
-            <DollarSign className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="text-sm text-muted-foreground">GDP</p>
-              <p className="font-mono font-semibold" data-testid="text-gdp">
-                ${formatNumber(country.gdp)}B USD
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Projects by PIFAH Pillar
               </p>
+              <div className="space-y-2">
+                {Object.entries(countryStats.pillarCounts).map(([pillar, count]) => (
+                  <div key={pillar} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                    <span className="text-sm font-medium">{pillar}</span>
+                    <Badge variant="secondary">
+                      {count} {count === 1 ? 'project' : 'projects'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
 
-        {country.languages && country.languages.length > 0 && (
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Languages</p>
-            <div className="flex flex-wrap gap-2">
-              {country.languages.map((lang, idx) => (
-                <Badge key={idx} variant="outline">
-                  {lang}
-                </Badge>
-              ))}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                Project Titles
+              </p>
+              <div className="space-y-2">
+                {countryStats.projects.map((project) => (
+                  <div key={project.id} className="p-3 rounded-md bg-muted/30 border border-muted">
+                    <p className="text-sm font-medium">{project.title}</p>
+                    <Badge variant="outline" className="mt-1 text-xs">
+                      {project.pillar}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
             </div>
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground">
+              No approved projects in {country.name} yet
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Be the first to submit a project!
+            </p>
           </div>
         )}
       </div>

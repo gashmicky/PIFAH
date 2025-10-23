@@ -25,6 +25,15 @@ export default function Landing() {
     queryKey: ['/api/projects/public'],
   });
 
+  // Fetch app settings for banner/logo
+  const { data: settings } = useQuery<{
+    id: string;
+    logoUrl: string | null;
+    bannerImageUrl: string | null;
+  }>({
+    queryKey: ['/api/settings'],
+  });
+
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + 0.5, 4));
   };
@@ -73,21 +82,28 @@ export default function Landing() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/5 to-primary/10 py-12">
+        <section 
+          className="relative bg-gradient-to-br from-primary/5 to-primary/10 py-12 bg-cover bg-center"
+          style={settings?.bannerImageUrl ? {
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${settings.bannerImageUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          } : undefined}
+        >
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center space-y-4">
-              <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${settings?.bannerImageUrl ? 'bg-white/10 text-white backdrop-blur-sm' : 'bg-primary/10 text-primary'}`}>
                 Transforming Africa's Health Sector
               </div>
               
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
+              <h2 className={`text-3xl md:text-5xl font-bold tracking-tight ${settings?.bannerImageUrl ? 'text-white' : ''}`}>
                 Unlocking Africa's Health{" "}
-                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                <span className={settings?.bannerImageUrl ? 'text-white' : 'bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'}>
                   Investment Opportunity
                 </span>
               </h2>
               
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className={`text-lg max-w-2xl mx-auto ${settings?.bannerImageUrl ? 'text-gray-100' : 'text-muted-foreground'}`}>
                 Explore approved health projects across Africa and submit your own investment proposals
               </p>
 
@@ -96,7 +112,11 @@ export default function Landing() {
                   Submit Your Project
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}>
+                <Button 
+                  size="lg" 
+                  variant={settings?.bannerImageUrl ? "secondary" : "outline"} 
+                  onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}
+                >
                   Explore Map
                 </Button>
               </div>

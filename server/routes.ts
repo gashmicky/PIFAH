@@ -6,7 +6,8 @@ import {
   insertCountrySchema, 
   regionColorsSchema,
   insertProjectSchema,
-  insertNotificationSchema 
+  insertNotificationSchema,
+  insertSettingsSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -297,6 +298,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/countries/:id", isAuthenticated, requireRole(['admin']), async (req, res) => {
     await storage.deleteCountry(req.params.id);
     res.status(204).send();
+  });
+
+  // Settings routes (for admin customization)
+  app.get("/api/settings", async (_req, res) => {
+    try {
+      const appSettings = await storage.getSettings();
+      res.json(appSettings || { id: "app_settings", logoUrl: null, bannerImageUrl: null });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/settings", isAuthenticated, requireRole(['admin']), async (req, res) => {
+    try {
+      const updates = insertSettingsSchema.partial().parse(req.body);
+      const appSettings = await storage.updateSettings(updates);
+      res.json(appSettings);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
   });
 
   const httpServer = createServer(app);
