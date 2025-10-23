@@ -35,6 +35,7 @@ export interface IStorage {
     submittedBy?: string;
   }): Promise<Project[]>;
   getApprovedProjects(): Promise<Project[]>;
+  getAllProjectsForStats(): Promise<Project[]>;
   updateProject(id: string, data: Partial<Project>): Promise<Project>;
   deleteProject(id: string): Promise<void>;
   
@@ -137,6 +138,13 @@ export class DatabaseStorage implements IStorage {
       .from(projects)
       .where(eq(projects.status, "approved"))
       .orderBy(desc(projects.approvedAt));
+  }
+
+  async getAllProjectsForStats(): Promise<Project[]> {
+    return db
+      .select()
+      .from(projects)
+      .orderBy(desc(projects.createdAt));
   }
 
   async updateProject(id: string, data: Partial<Project>): Promise<Project> {

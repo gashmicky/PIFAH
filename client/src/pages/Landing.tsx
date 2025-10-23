@@ -8,6 +8,7 @@ import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
 import { SearchBar } from "@/components/SearchBar";
 import { MapLegend } from "@/components/MapLegend";
 import { MapControls } from "@/components/MapControls";
+import { PillarStatsBar } from "@/components/PillarStatsBar";
 import { Country } from "@shared/schema";
 
 export default function Landing() {
@@ -239,6 +240,17 @@ export default function Landing() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* Pillar Statistics */}
+        <section className="container mx-auto px-4 py-12 bg-gradient-to-br from-background to-muted">
+          <div className="mb-6">
+            <h3 className="text-3xl font-bold text-center mb-2">Project Statistics by PIFAH Pillars</h3>
+            <p className="text-center text-muted-foreground">
+              Track investment progress across five strategic health pillars
+            </p>
+          </div>
+          <PillarStatsBar />
         </section>
 
         {/* Stats Section */}

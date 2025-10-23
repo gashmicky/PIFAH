@@ -124,6 +124,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get overall project statistics (for pillar breakdown)
+  app.get("/api/statistics/overview", async (_req, res) => {
+    try {
+      const allProjects = await storage.getAllProjectsForStats();
+      
+      const stats = {
+        totalProjects: allProjects.length,
+        approvedProjects: allProjects.filter(p => p.status === 'approved').length,
+        pendingProjects: allProjects.filter(p => p.status === 'pending').length,
+        underReviewProjects: allProjects.filter(p => p.status === 'under_review').length,
+        rejectedProjects: allProjects.filter(p => p.status === 'rejected').length,
+        pillarBreakdown: {} as Record<string, { approved: number; notApproved: number }>,
+      };
+
+      // Calculate pillar breakdown
+      allProjects.forEach(project => {
+        if (!stats.pillarBreakdown[project.pifahPillar]) {
+          stats.pillarBreakdown[project.pifahPillar] = { approved: 0, notApproved: 0 };
+        }
+        if (project.status === 'approved') {
+          stats.pillarBreakdown[project.pifahPillar].approved++;
+        } else {
+          stats.pillarBreakdown[project.pifahPillar].notApproved++;
+        }
+      });
+
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Backend: Get all projects with filters (admin, focal, approver only)
   app.get("/api/projects", isAuthenticated, requireRole(['admin', 'focal_person', 'approver']), async (req, res) => {
     try {
