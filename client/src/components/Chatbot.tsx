@@ -92,7 +92,7 @@ export function Chatbot({ position = "right" }: ChatbotProps) {
         <Button
           size="icon"
           onClick={() => setIsOpen(true)}
-          className={`fixed ${positionClasses} h-14 w-14 rounded-full shadow-lg z-50`}
+          className={`fixed ${positionClasses} h-14 w-14 rounded-full shadow-lg z-50 animate-pulse`}
           data-testid="button-chat-open"
         >
           <MessageCircle className="h-6 w-6" />
