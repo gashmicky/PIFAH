@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Globe, Users, TrendingUp, Shield, CheckCircle2, Map, HelpCircle } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Chatbot } from "@/components/Chatbot";
 import { AfricaMap } from "@/components/AfricaMap";
 import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
 import { SearchBar } from "@/components/SearchBar";
@@ -518,6 +519,9 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Chatbot */}
+      <Chatbot />
     </div>
   );
 }

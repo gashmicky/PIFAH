@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Globe, Settings, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Chatbot } from "@/components/Chatbot";
 import { SearchBar } from "@/components/SearchBar";
 import { MapLegend } from "@/components/MapLegend";
 import { MapControls } from "@/components/MapControls";
@@ -147,6 +148,9 @@ export default function MapPage() {
           )}
         </div>
       </main>
+
+      {/* Chatbot */}
+      <Chatbot position="left" />
     </div>
   );
 }

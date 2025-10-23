@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, MessageSquare, BookOpen, Lightbulb, ArrowLeft, Clock } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Chatbot } from "@/components/Chatbot";
 import { useQuery } from "@tanstack/react-query";
 
 export default function CommunityOfPractice() {
@@ -186,6 +187,9 @@ export default function CommunityOfPractice() {
           </div>
         </div>
       </footer>
+
+      {/* Chatbot */}
+      <Chatbot />
     </div>
   );
 }

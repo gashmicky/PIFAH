@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, requireRole } from "./replitAuth";
+import { openai, SYSTEM_PROMPT } from "./openai";
 import { 
   insertCountrySchema, 
   regionColorsSchema,
@@ -349,6 +350,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(appSettings);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Chatbot route
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { messages } = req.body;
+
+      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "not-configured") {
+        return res.json({
+          error: "The chatbot is not yet configured. Please add your OpenAI API key to the environment variables (OPENAI_API_KEY) to enable the AI assistant."
+        });
+      }
+
+      // the newest OpenAI model is "gpt-4o" which is highly capable for chat applications
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...messages
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
+      });
+
+      const assistantMessage = completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
+
+      res.json({ message: assistantMessage });
+    } catch (error: any) {
+      console.error("Chat error:", error);
+      res.status(500).json({
+        error: "I'm having trouble processing your request right now. This might be due to an invalid API key or service issue. Please check your OpenAI API key configuration."
+      });
     }
   });
 

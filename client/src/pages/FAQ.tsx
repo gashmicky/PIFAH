@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HelpCircle, ArrowLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Chatbot } from "@/components/Chatbot";
 import { useQuery } from "@tanstack/react-query";
 import {
   Accordion,
@@ -226,6 +227,9 @@ export default function FAQ() {
           </div>
         </div>
       </footer>
+
+      {/* Chatbot */}
+      <Chatbot />
     </div>
   );
 }
