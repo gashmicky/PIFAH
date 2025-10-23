@@ -3,13 +3,14 @@
 ## Overview
 
 A comprehensive project management application for the Programme for Investment and Financing in Africa's Health Sector (PIFAH). The system features:
-- **Public Interface**: Interactive Africa map showing approved projects by PIFAH pillar, landing page with statistics, and project information
+- **Public Interface**: Interactive Africa map showing approved projects by PIFAH pillar (very light green highlights), customizable logo/banner, REC membership display, and project statistics with pillar-specific colors
 - **Admin Dashboard**: Complete project management with advanced filtering, approval workflow tracking, and CSV export
 - **Focal Person Interface**: Review interface for regional project submissions with map and table views
 - **Approver Interface**: Final approval dashboard with comprehensive project oversight
 - **Project Submission**: Multi-tab form for detailed project proposals aligned with 5 PIFAH pillars
+- **REC Integration**: Display of 8 Regional Economic Communities (COMESA, EAC, ECCAS, ECOWAS, IGAD, SADC, UMA, CEN-SAD) with country membership and project statistics
 
-The application features role-based access control, pillar-based color visualization, approval workflow management, and responsive design with dark mode support.
+The application features role-based access control, pillar-based color visualization, approval workflow management, REC stats tracking, and responsive design with light theme default and optional dark mode.
 
 ## User Preferences
 
@@ -34,12 +35,15 @@ Preferred communication style: Simple, everyday language.
 - TanStack Query (React Query) for server state management and data fetching
 - Local React state (useState) for UI interactions (search, zoom, selected country)
 - Theme context provider for dark/light mode persistence via localStorage
+- Default theme: light (white background), with optional dark mode toggle
 
 **Map Visualization**
 - Custom SVG-based Africa map loaded as raw SVG asset
 - D3-geo library for geographic projections and transformations
 - Manual SVG path manipulation for country hover/selection states
 - Region-based color coding using HSL color scheme
+- Very light green (#D1FAE5) highlighting for countries with approved projects
+- Gray (#CBD5E1) for countries without projects
 
 **Key Design Decisions**
 - Component-based architecture with clear separation of concerns
@@ -114,7 +118,7 @@ The system organizes projects across five strategic investment pillars:
 4. **Human Capital Development** - Soft violet (hsl 260, 70%, 60%)
 5. **Local Manufacturing** - Soft magenta (hsl 280, 70%, 60%)
 
-Each pillar has primary, light, and dark color variants for consistent UI visualization.
+Each pillar has primary, light, and dark color variants for consistent UI visualization. Recent approved projects display pillar names in their respective pillar colors for quick visual identification.
 
 ### Authentication & Authorization
 
@@ -165,6 +169,39 @@ Each pillar has primary, light, and dark color variants for consistent UI visual
   - Project details, contact information, financial data
   - Submitted by, reviewed by, approved by user IDs
   - Complete timestamp trail (submitted, reviewed, approved)
+
+### Regional Economic Communities (RECs)
+
+**8 RECs Implemented**
+- **COMESA** (21 members): Common Market for Eastern and Southern Africa
+- **EAC** (7 members): East African Community
+- **ECCAS** (11 members): Economic Community of Central African States
+- **ECOWAS** (15 members): Economic Community of West African States
+- **IGAD** (8 members): Intergovernmental Authority on Development
+- **SADC** (16 members): Southern African Development Community
+- **UMA** (5 members): Arab Maghreb Union
+- **CEN-SAD** (29 members): Community of Sahel-Saharan States
+
+**REC Features**
+- Country-to-REC mapping stored in `recData.ts`
+- Multiple REC membership support (countries can belong to multiple RECs)
+- REC display in CountryDetailsPanel when country is selected
+- RECStatsBar component showing project counts per REC
+- REC statistics displayed below map on public landing page
+
+### UI Customization & Branding
+
+**Logo & Banner Management**
+- Admin-uploadable logo displayed in header (h-16 md:h-20) and footer
+- Logo also appears in footer for consistent branding
+- Custom banner image support for hero section
+- Settings stored in app_settings database table
+
+**Visual Design**
+- Compact stat cards for general statistics (African Countries, Market, Jobs)
+- Pillar-specific colors in recent projects display
+- Very light green map highlighting for better aesthetics
+- Light theme as default with dark mode available
 
 ## External Dependencies
 
