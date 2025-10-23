@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/Landing";
 import MapPage from "@/pages/MapPage";
 import AdminPage from "@/pages/AdminPage";
+import SubmitProjectPage from "@/pages/SubmitProjectPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={MapPage} />
+      <Route path="/submit-project" component={SubmitProjectPage} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>

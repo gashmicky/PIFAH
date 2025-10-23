@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Globe, Settings } from "lucide-react";
+import { Globe, Settings, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SearchBar } from "@/components/SearchBar";
@@ -48,6 +48,12 @@ export default function MapPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Link href="/submit-project">
+            <Button variant="default" size="sm" data-testid="button-submit-project">
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Submit Project
+            </Button>
+          </Link>
           <Button
             variant={viewMode === 'default' ? 'default' : 'ghost'}
             size="sm"

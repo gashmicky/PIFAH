@@ -7,11 +7,13 @@ import { AfricaMap } from "@/components/AfricaMap";
 import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
 import { SearchBar } from "@/components/SearchBar";
 import { MapLegend } from "@/components/MapLegend";
+import { MapControls } from "@/components/MapControls";
 import { Country } from "@shared/schema";
 
 export default function Landing() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [zoom, setZoom] = useState(1);
 
   // Fetch public projects data
   const { data: publicProjects = [] } = useQuery<Array<{
@@ -22,6 +24,18 @@ export default function Landing() {
   }>>({
     queryKey: ['/api/projects/public'],
   });
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.5, 4));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.5, 1));
+  };
+
+  const handleReset = () => {
+    setZoom(1);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-muted">
@@ -59,72 +73,84 @@ export default function Landing() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-              Transforming Africa's Health Sector
-            </div>
-            
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
-              Unlocking Africa's Health{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Investment Opportunity
-              </span>
-            </h2>
-            
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              PIFAH is Africa's catalytic platform for mobilizing domestic resources, unlocking blended capital, and transforming health systems across the continent.
-            </p>
+        <section className="bg-gradient-to-br from-primary/5 to-primary/10 py-12">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center space-y-4">
+              <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                Transforming Africa's Health Sector
+              </div>
+              
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
+                Unlocking Africa's Health{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Investment Opportunity
+                </span>
+              </h2>
+              
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Explore approved health projects across Africa and submit your own investment proposals
+              </p>
 
-            <div className="flex items-center justify-center gap-4 pt-4">
-              <Button size="lg" onClick={() => window.location.href = "/api/login"} data-testid="button-get-started">
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}>
-                View Map
-              </Button>
+              <div className="flex items-center justify-center gap-4 pt-4">
+                <Button size="lg" onClick={() => window.location.href = "/api/login"} data-testid="button-get-started">
+                  Submit Your Project
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' })}>
+                  Explore Map
+                </Button>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Interactive Map Section */}
+        {/* Interactive Map Section - Main Feature */}
         <section id="map" className="container mx-auto px-4 py-8">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold mb-2">Explore Africa's Health Projects</h3>
-              <p className="text-muted-foreground">
-                {publicProjects.length} Approved Projects | Click on any country to explore
+              <h3 className="text-3xl font-bold mb-2">Explore Africa's Health Projects</h3>
+              <p className="text-muted-foreground text-lg">
+                {publicProjects.length} Approved Projects Across the Continent
               </p>
             </div>
 
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden border-2">
               <CardContent className="p-0">
-                <div className="flex flex-col lg:flex-row h-[600px]">
-                  {/* Map */}
+                <div className="flex flex-col lg:flex-row" style={{ height: '700px' }}>
+                  {/* Map - 60% width */}
                   <div className="flex-1 relative bg-background">
-                    <div className="p-4 border-b">
+                    <div className="p-4 border-b bg-card/50">
                       <SearchBar
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        placeholder="Search countries..."
+                        placeholder="Search countries on the map..."
                       />
                     </div>
                     
-                    <div className="h-[calc(100%-60px)] relative">
+                    <div className="absolute inset-0 top-[72px]">
                       <AfricaMap
                         onCountryClick={setSelectedCountry}
                         searchQuery={searchQuery}
                         viewMode="region"
+                        zoom={zoom}
                       />
                       
-                      <div className="absolute bottom-4 left-4 z-30">
+                      <div className="absolute bottom-6 left-6 z-30">
                         <MapLegend />
+                      </div>
+
+                      <div className="absolute bottom-6 right-6 z-30">
+                        <MapControls
+                          onZoomIn={handleZoomIn}
+                          onZoomOut={handleZoomOut}
+                          onReset={handleReset}
+                          zoom={zoom}
+                        />
                       </div>
                     </div>
                   </div>
 
-                  {/* Info Panel */}
+                  {/* Info Panel - 40% width */}
                   <div className="w-full lg:w-2/5 border-l bg-card overflow-y-auto">
                     {selectedCountry ? (
                       <CountryDetailsPanel
@@ -133,28 +159,51 @@ export default function Landing() {
                         isStatic
                       />
                     ) : (
-                      <div className="p-6 h-full flex flex-col items-center justify-center text-center">
-                        <Globe className="h-16 w-16 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">Select a Country</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Click on any country on the map to view health investment projects
-                        </p>
+                      <div className="p-6 h-full flex flex-col">
+                        <div className="text-center mb-6">
+                          <Globe className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold mb-2">Select a Country</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Click on any country to view health investment projects and details
+                          </p>
+                        </div>
+
                         {publicProjects.length > 0 && (
-                          <div className="mt-4 w-full">
-                            <h4 className="text-sm font-semibold mb-2">Recent Projects</h4>
-                            <div className="space-y-2">
-                              {publicProjects.slice(0, 3).map((project: any) => (
-                                <div key={project.id} className="p-3 rounded-lg bg-muted/50 text-left">
-                                  <p className="text-sm font-medium">{project.projectTitle}</p>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs text-muted-foreground">{project.country}</span>
-                                    <span className="text-xs">•</span>
-                                    <span className="text-xs text-primary">{project.pifahPillar}</span>
-                                  </div>
-                                </div>
+                          <div className="flex-1 overflow-y-auto">
+                            <h4 className="text-sm font-semibold mb-3 px-2">Recent Approved Projects</h4>
+                            <div className="space-y-3">
+                              {publicProjects.slice(0, 5).map((project) => (
+                                <Card key={project.id} className="hover-elevate">
+                                  <CardContent className="p-4">
+                                    <p className="text-sm font-medium mb-2">{project.projectTitle}</p>
+                                    <div className="flex items-center gap-2">
+                                      <Globe className="h-3 w-3 text-muted-foreground" />
+                                      <span className="text-xs text-muted-foreground">{project.country}</span>
+                                      <span className="text-xs">•</span>
+                                      <span className="text-xs text-primary font-medium">{project.pifahPillar}</span>
+                                    </div>
+                                  </CardContent>
+                                </Card>
                               ))}
                             </div>
                           </div>
+                        )}
+
+                        {publicProjects.length === 0 && (
+                          <Card className="mt-4">
+                            <CardContent className="p-4 text-center">
+                              <p className="text-sm text-muted-foreground">
+                                No approved projects yet. Be the first to submit!
+                              </p>
+                              <Button 
+                                size="sm" 
+                                className="mt-3"
+                                onClick={() => window.location.href = "/api/login"}
+                              >
+                                Submit Project
+                              </Button>
+                            </CardContent>
+                          </Card>
                         )}
                       </div>
                     )}
@@ -168,7 +217,7 @@ export default function Landing() {
         {/* Stats Section */}
         <section className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <Card className="text-center">
+            <Card className="text-center hover-elevate">
               <CardContent className="pt-6">
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Globe className="h-6 w-6 text-primary" />
@@ -178,7 +227,7 @@ export default function Landing() {
               </CardContent>
             </Card>
 
-            <Card className="text-center">
+            <Card className="text-center hover-elevate">
               <CardContent className="pt-6">
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="h-6 w-6 text-primary" />
@@ -188,7 +237,7 @@ export default function Landing() {
               </CardContent>
             </Card>
 
-            <Card className="text-center">
+            <Card className="text-center hover-elevate">
               <CardContent className="pt-6">
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Users className="h-6 w-6 text-primary" />
@@ -212,7 +261,7 @@ export default function Landing() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card>
+              <Card className="hover-elevate">
                 <CardContent className="pt-6">
                   <Shield className="h-8 w-8 text-primary mb-3" />
                   <h4 className="text-lg font-semibold mb-2">Our Mission</h4>
@@ -222,7 +271,7 @@ export default function Landing() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="hover-elevate">
                 <CardContent className="pt-6">
                   <TrendingUp className="h-8 w-8 text-primary mb-3" />
                   <h4 className="text-lg font-semibold mb-2">Our Vision</h4>
@@ -236,10 +285,10 @@ export default function Landing() {
             <h4 className="text-2xl font-bold mb-4">Five Strategic Investment Pillars</h4>
             <div className="grid gap-3">
               {[
-                "Local Production of Medical Products",
-                "Digital Health and Artificial Intelligence",
-                "Health Infrastructure and Diagnostics",
-                "Research & Development",
+                "Health Infrastructure & Diagnostics",
+                "Local Manufacturing of Medical Products",
+                "Digital Health & Artificial Intelligence",
+                "Research & Development and Innovation",
                 "Human Capital Development"
               ].map((pillar, index) => (
                 <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover-elevate">
@@ -296,13 +345,13 @@ export default function Landing() {
                   </a>
                 </li>
                 <li>
-                  <a href="/api/login" className="text-muted-foreground hover:text-foreground">
-                    Submit Project
+                  <a href="#map" className="text-muted-foreground hover:text-foreground">
+                    Explore Map
                   </a>
                 </li>
                 <li>
                   <a href="/api/login" className="text-muted-foreground hover:text-foreground">
-                    Login
+                    Login / Register
                   </a>
                 </li>
               </ul>
