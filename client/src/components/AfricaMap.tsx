@@ -111,7 +111,7 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
       if (viewMode === 'region') {
         fillColor = regionColors[country.region] || '#CBD5E1';
       } else if (hasProjects) {
-        fillColor = '#10B981';
+        fillColor = '#D1FAE5'; // Very light green
       }
 
       path.setAttribute('fill', fillColor);

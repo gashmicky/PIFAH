@@ -9,6 +9,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { MapLegend } from "@/components/MapLegend";
 import { MapControls } from "@/components/MapControls";
 import { PillarStatsBar } from "@/components/PillarStatsBar";
+import { PILLAR_COLORS } from "@/data/pillarColors";
 import { Country } from "@shared/schema";
 
 export default function Landing() {
@@ -57,12 +58,12 @@ export default function Landing() {
               <img 
                 src={settings.logoUrl} 
                 alt="PIFAH Logo" 
-                className="h-14 w-auto max-w-[120px] md:h-16 md:max-w-[150px] object-contain"
+                className="h-16 w-auto max-w-[140px] md:h-20 md:max-w-[180px] object-contain"
                 data-testid="img-logo"
               />
             ) : (
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-                <Globe className="h-6 w-6 text-primary-foreground" />
+              <div className="h-14 w-14 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <Globe className="h-7 w-7 text-primary-foreground" />
               </div>
             )}
             <div>
@@ -202,19 +203,27 @@ export default function Landing() {
                       <div className="flex-1 overflow-y-auto">
                         <h4 className="text-sm font-semibold mb-3 px-2">Recent Approved Projects</h4>
                         <div className="space-y-3">
-                          {publicProjects.slice(0, 5).map((project) => (
-                            <Card key={project.id} className="hover-elevate">
-                              <CardContent className="p-4">
-                                <p className="text-sm font-medium mb-2">{project.projectTitle}</p>
-                                <div className="flex items-center gap-2">
-                                  <Globe className="h-3 w-3 text-muted-foreground" />
-                                  <span className="text-xs text-muted-foreground">{project.country}</span>
-                                  <span className="text-xs">•</span>
-                                  <span className="text-xs text-primary font-medium">{project.pifahPillar}</span>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                          {publicProjects.slice(0, 5).map((project) => {
+                            const pillarColor = PILLAR_COLORS[project.pifahPillar]?.primary || 'hsl(200, 70%, 60%)';
+                            return (
+                              <Card key={project.id} className="hover-elevate">
+                                <CardContent className="p-4">
+                                  <p className="text-sm font-medium mb-2">{project.projectTitle}</p>
+                                  <div className="flex items-center gap-2">
+                                    <Globe className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground">{project.country}</span>
+                                    <span className="text-xs">•</span>
+                                    <span 
+                                      className="text-xs font-medium" 
+                                      style={{ color: pillarColor }}
+                                    >
+                                      {project.pifahPillar}
+                                    </span>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
@@ -254,35 +263,35 @@ export default function Landing() {
         </section>
 
         {/* Stats Section */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <section className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             <Card className="text-center hover-elevate">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Globe className="h-6 w-6 text-primary" />
+              <CardContent className="pt-4 pb-4">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Globe className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-3xl font-bold">55</h3>
-                <p className="text-muted-foreground">African Countries</p>
+                <h3 className="text-2xl font-bold">55</h3>
+                <p className="text-sm text-muted-foreground">African Countries</p>
               </CardContent>
             </Card>
 
             <Card className="text-center hover-elevate">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-6 w-6 text-primary" />
+              <CardContent className="pt-4 pb-4">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <TrendingUp className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-3xl font-bold">$259B</h3>
-                <p className="text-muted-foreground">Projected Market by 2030</p>
+                <h3 className="text-2xl font-bold">$259B</h3>
+                <p className="text-sm text-muted-foreground">Projected Market by 2030</p>
               </CardContent>
             </Card>
 
             <Card className="text-center hover-elevate">
-              <CardContent className="pt-6">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-6 w-6 text-primary" />
+              <CardContent className="pt-4 pb-4">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-3xl font-bold">16M</h3>
-                <p className="text-muted-foreground">Potential New Jobs</p>
+                <h3 className="text-2xl font-bold">16M</h3>
+                <p className="text-sm text-muted-foreground">Potential New Jobs</p>
               </CardContent>
             </Card>
           </div>
@@ -362,9 +371,18 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-                  <Globe className="h-5 w-5 text-primary-foreground" />
-                </div>
+                {settings?.logoUrl ? (
+                  <img 
+                    src={settings.logoUrl} 
+                    alt="PIFAH Logo" 
+                    className="h-12 w-auto max-w-[100px] object-contain"
+                    data-testid="img-logo-footer"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                    <Globe className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                )}
                 <div>
                   <h3 className="font-bold">PIFAH</h3>
                   <p className="text-xs text-muted-foreground">AUDA-NEPAD</p>
