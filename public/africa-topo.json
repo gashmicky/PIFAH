@@ -1,0 +1,14 @@
+{
+  "type": "Topology",
+  "arcs": [],
+  "transform": {
+    "scale": [0.036003600360036005, 0.01721712896945457],
+    "translate": [-25.359999084699736, -34.83999108060001]
+  },
+  "objects": {
+    "africa": {
+      "type": "GeometryCollection",
+      "geometries": []
+    }
+  }
+}

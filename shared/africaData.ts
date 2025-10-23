@@ -64,6 +64,7 @@ export const africaCountries: Country[] = [
   { id: 'ug', name: 'Uganda', capital: 'Kampala', population: 48582000, area: 241550, region: 'East', gdp: 45 },
   { id: 'zm', name: 'Zambia', capital: 'Lusaka', population: 20017000, area: 752612, region: 'South', gdp: 22 },
   { id: 'zw', name: 'Zimbabwe', capital: 'Harare', population: 16320000, area: 390757, region: 'South', gdp: 28 },
+  { id: 'eh', name: 'Western Sahara', capital: 'El Aaiún', population: 652000, area: 266000, region: 'North', gdp: 1 },
 ];
 
 export const regionColors = {

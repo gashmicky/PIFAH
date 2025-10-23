@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { Country, africaCountries, regionColors } from "@shared/africaData";
 import { CountryTooltip } from "./CountryTooltip";
-import { africaMapPaths } from "@shared/africaMapPaths";
 
 interface AfricaMapProps {
   onCountryClick: (country: Country) => void;
@@ -9,13 +9,13 @@ interface AfricaMapProps {
   viewMode: 'default' | 'region';
 }
 
+// Using unpkg CDN for world atlas data (will filter to show only Africa)
+const geoUrl = "https://unpkg.com/world-atlas@2.0.2/countries-50m.json";
+
 export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapProps) {
   const [hoveredCountry, setHoveredCountry] = useState<Country | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
-  const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const svgRef = useRef<SVGSVGElement>(null);
+  const [position, setPosition] = useState({ coordinates: [20, 0], zoom: 1 });
 
   const filteredCountries = africaCountries.filter((country) =>
     country.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -23,103 +23,111 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({ x: e.clientX, y: e.clientY });
-
-    if (isPanning) {
-      const dx = e.clientX - panStart.x;
-      const dy = e.clientY - panStart.y;
-      setTransform((prev) => ({
-        ...prev,
-        x: prev.x + dx,
-        y: prev.y + dy,
-      }));
-      setPanStart({ x: e.clientX, y: e.clientY });
-    }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 0) {
-      setIsPanning(true);
-      setPanStart({ x: e.clientX, y: e.clientY });
-    }
+  const getCountryData = (geoId: string): Country | undefined => {
+    // Map ISO2 codes to our country IDs
+    const isoMap: Record<string, string> = {
+      'DZ': 'dz', 'AO': 'ao', 'BJ': 'bj', 'BW': 'bw', 'BF': 'bf',
+      'BI': 'bi', 'CM': 'cm', 'CV': 'cv', 'CF': 'cf', 'TD': 'td',
+      'KM': 'km', 'CG': 'cg', 'CD': 'cd', 'CI': 'ci', 'DJ': 'dj',
+      'EG': 'eg', 'GQ': 'gq', 'ER': 'er', 'SZ': 'sz', 'ET': 'et',
+      'GA': 'ga', 'GM': 'gm', 'GH': 'gh', 'GN': 'gn', 'GW': 'gw',
+      'KE': 'ke', 'LS': 'ls', 'LR': 'lr', 'LY': 'ly', 'MG': 'mg',
+      'MW': 'mw', 'ML': 'ml', 'MR': 'mr', 'MU': 'mu', 'MA': 'ma',
+      'MZ': 'mz', 'NA': 'na', 'NE': 'ne', 'NG': 'ng', 'RW': 'rw',
+      'ST': 'st', 'SN': 'sn', 'SC': 'sc', 'SL': 'sl', 'SO': 'so',
+      'ZA': 'za', 'SS': 'ss', 'SD': 'sd', 'TZ': 'tz', 'TG': 'tg',
+      'TN': 'tn', 'UG': 'ug', 'ZM': 'zm', 'ZW': 'zw', 'EH': 'eh'
+    };
+    
+    const countryId = isoMap[geoId];
+    return africaCountries.find((c) => c.id === countryId);
   };
 
-  const handleMouseUp = () => {
-    setIsPanning(false);
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    setTransform((prev) => ({
-      ...prev,
-      scale: Math.max(0.5, Math.min(5, prev.scale * delta)),
-    }));
-  };
-
-  const getCountryColor = (country: Country) => {
+  const getCountryColor = (country: Country | undefined) => {
+    if (!country) return 'hsl(var(--muted))';
     if (viewMode === 'region') {
       return regionColors[country.region];
     }
     return 'hsl(var(--muted))';
   };
 
-  const isHighlighted = (country: Country) => {
+  const isHighlighted = (country: Country | undefined) => {
+    if (!country) return false;
     if (!searchQuery) return true;
     return filteredCountries.some((c) => c.id === country.id);
   };
 
-  useEffect(() => {
-    const handleGlobalMouseUp = () => setIsPanning(false);
-    window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, []);
-
   return (
     <div
-      className="relative w-full h-full overflow-hidden bg-background cursor-move"
+      className="relative w-full h-full overflow-hidden bg-background"
       onMouseMove={handleMouseMove}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onWheel={handleWheel}
       data-testid="map-container"
     >
-      <svg
-        ref={svgRef}
-        viewBox="0 0 1000 1000"
-        className="w-full h-full"
-        style={{
-          transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-          transition: isPanning ? 'none' : 'transform 0.3s ease-out',
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{
+          scale: 400,
+          center: [20, 5]
         }}
+        className="w-full h-full"
       >
-        {africaCountries.map((country) => {
-          const path = africaMapPaths[country.id];
-          if (!path) return null;
-
-          const highlighted = isHighlighted(country);
-          
-          return (
-            <path
-              key={country.id}
-              d={path}
-              fill={getCountryColor(country)}
-              stroke="hsl(var(--border))"
-              strokeWidth="1"
-              className="transition-all duration-300 cursor-pointer hover-elevate"
-              style={{
-                opacity: highlighted ? 1 : 0.3,
-                filter: hoveredCountry?.id === country.id
-                  ? 'brightness(1.2) drop-shadow(0 0 8px rgba(100, 150, 255, 0.5))'
-                  : 'none',
-              }}
-              onMouseEnter={() => highlighted && setHoveredCountry(country)}
-              onMouseLeave={() => setHoveredCountry(null)}
-              onClick={() => highlighted && onCountryClick(country)}
-              data-testid={`country-${country.id}`}
-            />
-          );
-        })}
-      </svg>
+        <ZoomableGroup
+          zoom={position.zoom}
+          center={position.coordinates as [number, number]}
+          onMoveEnd={(position) => setPosition(position)}
+        >
+          <Geographies geography={geoUrl}>
+            {({ geographies }) =>
+              geographies.map((geo) => {
+                const countryData = getCountryData(geo.properties.ISO_A2);
+                const highlighted = isHighlighted(countryData);
+                
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    fill={getCountryColor(countryData)}
+                    stroke="hsl(var(--border))"
+                    strokeWidth={0.5}
+                    style={{
+                      default: {
+                        outline: 'none',
+                        opacity: highlighted ? 1 : 0.3,
+                      },
+                      hover: {
+                        outline: 'none',
+                        opacity: highlighted ? 1 : 0.3,
+                        filter: highlighted ? 'brightness(1.2)' : 'none',
+                        cursor: highlighted ? 'pointer' : 'default',
+                      },
+                      pressed: {
+                        outline: 'none',
+                        opacity: highlighted ? 1 : 0.3,
+                      },
+                    }}
+                    onMouseEnter={() => {
+                      if (highlighted && countryData) {
+                        setHoveredCountry(countryData);
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredCountry(null);
+                    }}
+                    onClick={() => {
+                      if (highlighted && countryData) {
+                        onCountryClick(countryData);
+                      }
+                    }}
+                    data-testid={countryData ? `country-${countryData.id}` : undefined}
+                  />
+                );
+              })
+            }
+          </Geographies>
+        </ZoomableGroup>
+      </ComposableMap>
 
       {hoveredCountry && (
         <CountryTooltip
@@ -131,5 +139,3 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode }: AfricaMapPr
     </div>
   );
 }
-
-export { africaMapPaths };

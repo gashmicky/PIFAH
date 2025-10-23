@@ -7,6 +7,7 @@ export default function MapControlsExample() {
         onZoomIn={() => console.log("Zoom in")}
         onZoomOut={() => console.log("Zoom out")}
         onReset={() => console.log("Reset")}
+        zoom={1}
       />
     </div>
   );

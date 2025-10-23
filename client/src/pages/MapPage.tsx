@@ -15,23 +15,23 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('region');
-  const [mapKey, setMapKey] = useState(0);
+  const [zoom, setZoom] = useState(1);
 
   const handleZoomIn = () => {
-    console.log("Zoom in");
+    setZoom((prev) => Math.min(prev + 0.5, 4));
   };
 
   const handleZoomOut = () => {
-    console.log("Zoom out");
+    setZoom((prev) => Math.max(prev - 0.5, 1));
   };
 
   const handleReset = () => {
-    setMapKey((prev) => prev + 1);
+    setZoom(1);
   };
 
   return (
     <div className="h-screen flex flex-col">
-      <header className="h-16 border-b px-4 flex items-center justify-between gap-4 bg-card">
+      <header className="h-16 border-b px-4 flex items-center justify-between gap-4 bg-card flex-wrap">
         <div className="flex items-center gap-3">
           <Globe className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-semibold">Interactive Africa Map</h1>
@@ -68,7 +68,6 @@ export default function MapPage() {
 
       <main className="flex-1 relative">
         <AfricaMap
-          key={mapKey}
           onCountryClick={setSelectedCountry}
           searchQuery={searchQuery}
           viewMode={viewMode}
@@ -83,6 +82,7 @@ export default function MapPage() {
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
             onReset={handleReset}
+            zoom={zoom}
           />
         </div>
       </main>

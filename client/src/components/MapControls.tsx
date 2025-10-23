@@ -6,15 +6,17 @@ interface MapControlsProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onReset: () => void;
+  zoom: number;
 }
 
-export function MapControls({ onZoomIn, onZoomOut, onReset }: MapControlsProps) {
+export function MapControls({ onZoomIn, onZoomOut, onReset, zoom }: MapControlsProps) {
   return (
     <Card className="p-2 backdrop-blur-md bg-card/95 flex flex-col gap-1">
       <Button
         variant="ghost"
         size="icon"
         onClick={onZoomIn}
+        disabled={zoom >= 4}
         data-testid="button-zoom-in"
       >
         <ZoomIn className="h-4 w-4" />
@@ -23,6 +25,7 @@ export function MapControls({ onZoomIn, onZoomOut, onReset }: MapControlsProps) 
         variant="ghost"
         size="icon"
         onClick={onZoomOut}
+        disabled={zoom <= 1}
         data-testid="button-zoom-out"
       >
         <ZoomOut className="h-4 w-4" />
