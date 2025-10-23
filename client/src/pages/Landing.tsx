@@ -18,6 +18,11 @@ export default function Landing() {
   const [searchQuery, setSearchQuery] = useState("");
   const [zoom, setZoom] = useState(1);
 
+  // Fetch countries data
+  const { data: countries = [] } = useQuery<Country[]>({
+    queryKey: ['/api/countries'],
+  });
+
   // Fetch public projects data
   const { data: publicProjects = [] } = useQuery<Array<{
     id: string;
@@ -213,8 +218,15 @@ export default function Landing() {
                         <div className="space-y-3">
                           {publicProjects.slice(0, 5).map((project) => {
                             const pillarColor = PILLAR_COLORS[project.pifahPillar]?.primary || 'hsl(200, 70%, 60%)';
+                            const country = countries.find(c => c.name === project.country);
+                            
                             return (
-                              <Card key={project.id} className="hover-elevate">
+                              <Card 
+                                key={project.id} 
+                                className="hover-elevate cursor-pointer"
+                                onClick={() => country && setSelectedCountry(country)}
+                                data-testid={`card-project-${project.id}`}
+                              >
                                 <CardContent className="p-4">
                                   <p className="text-sm font-medium mb-2">{project.projectTitle}</p>
                                   <div className="flex items-center gap-2">
