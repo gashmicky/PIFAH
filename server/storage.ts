@@ -3,6 +3,7 @@ import {
   projects,
   notifications,
   countries,
+  settings,
   type User,
   type UpsertUser,
   type Project,
@@ -11,6 +12,8 @@ import {
   type InsertNotification,
   type Country,
   type InsertCountry,
+  type Settings,
+  type InsertSettings,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";
@@ -46,6 +49,10 @@ export interface IStorage {
   createCountry(country: InsertCountry): Promise<Country>;
   updateCountry(id: string, data: Partial<Country>): Promise<Country>;
   deleteCountry(id: string): Promise<void>;
+  
+  // Settings operations
+  getSettings(): Promise<Settings | undefined>;
+  updateSettings(data: Partial<InsertSettings>): Promise<Settings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -198,6 +205,24 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCountry(id: string): Promise<void> {
     await db.delete(countries).where(eq(countries.id, id));
+  }
+
+  // Settings operations
+  async getSettings(): Promise<Settings | undefined> {
+    const [appSettings] = await db.select().from(settings).where(eq(settings.id, "app_settings"));
+    return appSettings;
+  }
+
+  async updateSettings(data: Partial<InsertSettings>): Promise<Settings> {
+    const [appSettings] = await db
+      .insert(settings)
+      .values({ id: "app_settings", ...data })
+      .onConflictDoUpdate({
+        target: settings.id,
+        set: { ...data, updatedAt: new Date() },
+      })
+      .returning();
+    return appSettings;
   }
 }
 

@@ -197,3 +197,18 @@ export const regionColorsSchema = z.object({
 });
 
 export type RegionColors = z.infer<typeof regionColorsSchema>;
+
+// Settings table (for admin customization)
+export const settings = pgTable("settings", {
+  id: varchar("id").primaryKey().default("app_settings"),
+  logoUrl: text("logo_url"),
+  bannerImageUrl: text("banner_image_url"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSettingsSchema = createInsertSchema(settings).omit({
+  updatedAt: true,
+});
+
+export type InsertSettings = z.infer<typeof insertSettingsSchema>;
+export type Settings = typeof settings.$inferSelect;
