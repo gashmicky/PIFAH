@@ -115,45 +115,43 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="w-full">
-            <div className="flex flex-col lg:flex-row min-h-screen lg:h-[900px]">
-              {/* Map - 70% width */}
-              <div className="flex-1 relative bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-                <div className="absolute top-6 left-6 right-6 z-20 max-w-md">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col lg:flex-row gap-4 h-[600px] lg:h-[700px]">
+              {/* Map - 65% width */}
+              <div className="flex-1 relative bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-lg overflow-hidden">
+                <div className="absolute top-4 left-4 right-4 z-20 max-w-sm">
                   <SearchBar
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    placeholder="Search countries on the map..."
+                    placeholder="Search countries..."
                   />
                 </div>
                 
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-full h-full">
-                    <AfricaMap
-                      onCountryClick={setSelectedCountry}
-                      searchQuery={searchQuery}
-                      viewMode="default"
-                      zoom={zoom}
-                    />
-                  </div>
-                  
-                  <div className="absolute bottom-6 left-6 z-30">
-                    <MapLegend />
-                  </div>
+                <div className="w-full h-full pt-16">
+                  <AfricaMap
+                    onCountryClick={setSelectedCountry}
+                    searchQuery={searchQuery}
+                    viewMode="default"
+                    zoom={zoom}
+                  />
+                </div>
+                
+                <div className="absolute bottom-4 left-4 z-30">
+                  <MapLegend />
+                </div>
 
-                  <div className="absolute bottom-6 right-6 z-30">
-                    <MapControls
-                      onZoomIn={handleZoomIn}
-                      onZoomOut={handleZoomOut}
-                      onReset={handleReset}
-                      zoom={zoom}
-                    />
-                  </div>
+                <div className="absolute bottom-4 right-4 z-30">
+                  <MapControls
+                    onZoomIn={handleZoomIn}
+                    onZoomOut={handleZoomOut}
+                    onReset={handleReset}
+                    zoom={zoom}
+                  />
                 </div>
               </div>
 
-              {/* Info Panel - 30% width */}
-              <div className="w-full lg:w-[30%] bg-white dark:bg-slate-950 border-l overflow-y-auto">
+              {/* Info Panel - 35% width */}
+              <div className="w-full lg:w-[35%] bg-white dark:bg-slate-900 rounded-lg border overflow-y-auto">
                 {selectedCountry ? (
                   <CountryDetailsPanel
                     country={selectedCountry}

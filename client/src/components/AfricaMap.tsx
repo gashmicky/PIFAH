@@ -109,20 +109,23 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
         path.style.filter = 'none';
       };
 
-      const handleClick = () => {
+      const handleClick = (e: MouseEvent) => {
+        e.stopPropagation();
         if (isHighlighted) {
+          console.log('Country clicked:', country.name);
           onCountryClick(country);
         }
       };
 
+      path.style.pointerEvents = 'auto';
       path.addEventListener('mouseenter', handleMouseEnter);
       path.addEventListener('mouseleave', handleMouseLeave);
-      path.addEventListener('click', handleClick);
+      path.addEventListener('click', handleClick as EventListener);
 
       cleanupFunctions.push(() => {
         path.removeEventListener('mouseenter', handleMouseEnter);
         path.removeEventListener('mouseleave', handleMouseLeave);
-        path.removeEventListener('click', handleClick);
+        path.removeEventListener('click', handleClick as EventListener);
       });
     });
 
@@ -137,15 +140,22 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
 
   return (
     <div
-      className="relative w-full h-full overflow-visible flex items-center justify-center p-4"
+      className="relative w-full h-full flex items-center justify-center"
       onMouseMove={handleMouseMove}
       data-testid="map-container"
-      style={{ background: 'transparent' }}
+      style={{ 
+        background: 'transparent',
+        pointerEvents: 'auto'
+      }}
     >
       <div
         ref={svgContainerRef}
         className="w-full h-full"
-        style={{ maxWidth: '100%', maxHeight: '100%' }}
+        style={{ 
+          maxWidth: '100%', 
+          maxHeight: '100%',
+          pointerEvents: 'auto'
+        }}
         dangerouslySetInnerHTML={{ __html: africaMapSvg }}
       />
 
