@@ -1,8 +1,15 @@
-# Interactive Africa Map
+# PIFAH Project Management System
 
 ## Overview
 
-An interactive web application for exploring African countries through a visual map interface. Users can search for countries, view detailed information (capital, population, area, GDP), and explore data organized by geographic regions (North, West, East, Central, South Africa). The application features a modern, data-dense interface with Material Design principles, dark mode support, and responsive SVG-based map visualizations.
+A comprehensive project management application for the Programme for Investment and Financing in Africa's Health Sector (PIFAH). The system features:
+- **Public Interface**: Interactive Africa map showing approved projects by PIFAH pillar, landing page with statistics, and project information
+- **Admin Dashboard**: Complete project management with advanced filtering, approval workflow tracking, and CSV export
+- **Focal Person Interface**: Review interface for regional project submissions with map and table views
+- **Approver Interface**: Final approval dashboard with comprehensive project oversight
+- **Project Submission**: Multi-tab form for detailed project proposals aligned with 5 PIFAH pillars
+
+The application features role-based access control, pillar-based color visualization, approval workflow management, and responsive design with dark mode support.
 
 ## User Preferences
 
@@ -77,23 +84,87 @@ Preferred communication style: Simple, everyday language.
 - Neon serverless database driver ready for cloud deployment
 - Migration files generated in `/migrations` directory
 
+**Active Database Schema**
+- **users**: User authentication and role management (admin, focal_person, approver, public)
+- **projects**: Comprehensive project submissions with 50+ fields covering:
+  - General information (title, country, implementing entity)
+  - Strategic rationale (PIFAH pillar alignment, regional integration)
+  - Market opportunity and impact
+  - Financial information
+  - Implementation readiness
+  - Workflow fields (status, reviewedBy, approvedBy with timestamps)
+- **sessions**: Secure session storage for Replit Auth
+- **notifications**: Project workflow notifications (submission, review, approval)
+- **countries**: African country master data
+- **app_settings**: Logo and banner image storage
+
 **Key Design Decisions**
-- Static data approach chosen for performance and simplicity
-- Database infrastructure prepared for future user authentication features
+- PostgreSQL database with Drizzle ORM for type-safe queries
+- Workflow-based approval system (pending → under_review → approved)
+- Multi-role authentication with route-level protection
 - Schema uses gen_random_uuid() for primary key generation
-- Drizzle-Zod integration for type-safe schema validation
+- Drizzle-Zod integration for form validation
+
+### PIFAH Pillars (5 Strategic Areas)
+
+The system organizes projects across five strategic investment pillars:
+1. **Diagnostics & Imaging** - Soft blue (hsl 200, 70%, 60%)
+2. **Digital Health & AI** - Soft indigo (hsl 220, 70%, 60%)
+3. **Health Infrastructure** - Soft purple (hsl 240, 70%, 60%)
+4. **Human Capital Development** - Soft violet (hsl 260, 70%, 60%)
+5. **Local Manufacturing** - Soft magenta (hsl 280, 70%, 60%)
+
+Each pillar has primary, light, and dark color variants for consistent UI visualization.
 
 ### Authentication & Authorization
 
-**Current State**
-- No active authentication system implemented
-- User schema and storage interfaces prepared for future implementation
-- Session middleware (connect-pg-simple) installed but not configured
+**Active Implementation**
+- Replit Auth integration for user authentication
+- Role-based access control with 4 user roles: admin, focal_person, approver, public
+- Session-based authentication using PostgreSQL session store
+- Role-specific route protection enforced in frontend routing
 
-**Prepared Infrastructure**
-- User table with username/password fields
-- Password hashing would need to be implemented before production use
-- Session store ready for PostgreSQL-backed sessions
+**User Roles & Permissions**
+- **Admin**: Full access to all projects, settings, country management, color customization
+- **Focal Person**: Review and approve regional project submissions, view all projects
+- **Approver**: Provide final approval for projects reviewed by focal persons
+- **Public**: View approved projects on public map, submit new project proposals
+
+**Test Accounts Available**
+- Admin: admin@pifah.org
+- Focal Person: focal@pifah.org
+- Approver: approver@pifah.org
+
+### Project Management Features
+
+**Admin Dashboard** (/admin)
+- Comprehensive projects table with all submission fields
+- Advanced filtering: status, country, PIFAH pillar, search
+- Approval workflow tracking (focal review, final approval)
+- CSV export with complete audit trail
+- Country management, color settings, app settings (logo/banner upload)
+
+**Focal Person Dashboard** (/focal-person)
+- Statistics overview: pending review, under review, reviewed counts
+- Table view with projects pending focal review
+- Interactive map view showing project distribution
+- Filter and search capabilities
+
+**Approver Dashboard** (/approver)
+- Statistics overview: pending approval, approved, total projects
+- Table view with projects pending final approval
+- Interactive map view showing approved projects
+- Filter and search capabilities
+
+**ProjectsTable Component**
+- Multi-column sortable table with all project fields
+- Status badges (pending, under review, approved, rejected)
+- Approval status indicators (focal reviewed, final approved)
+- Filters: status, country, pillar, search query
+- CSV export with proper escaping and metadata:
+  - Project details, contact information, financial data
+  - Submitted by, reviewed by, approved by user IDs
+  - Complete timestamp trail (submitted, reviewed, approved)
 
 ## External Dependencies
 
