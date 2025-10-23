@@ -49,7 +49,7 @@ export default function MapPage() {
             <img 
               src={settings.logoUrl} 
               alt="PIFAH Logo" 
-              className="h-10 w-10 object-contain"
+              className="h-12 w-auto max-w-[100px] md:h-14 md:max-w-[130px] object-contain"
               data-testid="img-logo-map"
             />
           ) : (
