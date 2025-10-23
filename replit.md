@@ -3,14 +3,16 @@
 ## Overview
 
 A comprehensive project management application for the Programme for Investment and Financing in Africa's Health Sector (PIFAH). The system features:
-- **Public Interface**: Interactive Africa map showing approved projects by PIFAH pillar (very light green highlights), customizable logo/banner, REC membership display, and project statistics with pillar-specific colors
-- **Admin Dashboard**: Complete project management with advanced filtering, approval workflow tracking, and CSV export
+- **Public Interface**: Interactive Africa map showing approved projects by PIFAH pillar (very light green highlights), customizable logo/banner, REC membership display, project statistics with pillar-specific colors, and theme toggle (dark/light mode)
+- **Admin Dashboard**: Complete project management with advanced filtering, approval workflow tracking, CSV/PDF export, and detailed project view dialogs
 - **Focal Person Interface**: Review interface for regional project submissions with map and table views
 - **Approver Interface**: Final approval dashboard with comprehensive project oversight
 - **Project Submission**: Multi-tab form for detailed project proposals aligned with 5 PIFAH pillars
 - **REC Integration**: Display of 8 Regional Economic Communities (COMESA, EAC, ECCAS, ECOWAS, IGAD, SADC, UMA, CEN-SAD) with country membership and project statistics
+- **Community of Practice**: Coming soon page for collaborative platform where health sector professionals can share ideas and best practices
+- **FAQ Section**: Comprehensive frequently asked questions covering general information, projects, RECs, technical support, and investment financing
 
-The application features role-based access control, pillar-based color visualization, approval workflow management, REC stats tracking, and responsive design with light theme default and optional dark mode.
+The application features role-based access control, pillar-based color visualization, approval workflow management, REC stats tracking, public theme toggle, and responsive design with light theme default and optional dark mode.
 
 ## User Preferences
 
@@ -50,6 +52,8 @@ Preferred communication style: Simple, everyday language.
 - Custom map implementation over libraries like react-simple-maps for better control
 - Static country data stored in TypeScript (africaData.ts) rather than dynamic API calls
 - Path aliases (@/, @shared/, @assets/) for clean import statements
+- Public routes (/faq, /community) accessible to both authenticated and unauthenticated users
+- Consistent "PIFAH" branding across all pages (replaced "Interactive Africa Map")
 
 ### Backend Architecture
 
