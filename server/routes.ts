@@ -250,6 +250,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update own project (owner only, before approval)
+  app.patch("/api/projects/:id/owner-update", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const projectId = req.params.id;
+      
+      // Get the project to verify ownership and status
+      const existingProject = await storage.getProject(projectId);
+      
+      if (!existingProject) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      
+      // Check if user is the owner
+      if (existingProject.submittedBy !== userId) {
+        return res.status(403).json({ message: "You can only edit your own projects" });
+      }
+      
+      // Check if project can be edited (not approved or rejected)
+      if (existingProject.status === "approved" || existingProject.status === "rejected") {
+        return res.status(403).json({ 
+          message: `Cannot edit ${existingProject.status} projects. Please contact an administrator.` 
+        });
+      }
+      
+      // Parse and validate the updates
+      const updates = insertProjectSchema.partial().parse(req.body);
+      
+      // Update the project but keep workflow fields intact
+      const project = await storage.updateProject(projectId, {
+        ...updates,
+        // Preserve workflow fields
+        status: existingProject.status,
+        submittedBy: existingProject.submittedBy,
+        submittedAt: existingProject.submittedAt,
+        updatedAt: new Date(),
+      });
+      
+      res.json(project);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Update project (admin only)
   app.patch("/api/projects/:id", isAuthenticated, requireRole(['admin']), async (req, res) => {
     try {

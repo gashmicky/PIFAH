@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, CheckCircle2, ChevronRight, ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Project } from "@shared/schema";
+import { useLocation } from "wouter";
 
 const AFRICAN_COUNTRIES = [
   "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon",
@@ -107,12 +109,18 @@ const TABS = [
   { value: "additional", label: "Additional" },
 ];
 
-export function ProjectSubmissionForm() {
+interface ProjectSubmissionFormProps {
+  initialData?: Project | null;
+  isEditMode?: boolean;
+}
+
+export function ProjectSubmissionForm({ initialData = null, isEditMode = false }: ProjectSubmissionFormProps) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [submitted, setSubmitted] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProjectFormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm<ProjectFormData>({
     defaultValues: {
       regionalIntegrationPotential: false,
       governmentApprovals: false,
@@ -120,6 +128,55 @@ export function ProjectSubmissionForm() {
       supportRequired: [],
     },
   });
+
+  // Populate form with initial data in edit mode
+  useEffect(() => {
+    if (initialData && isEditMode) {
+      reset({
+        projectTitle: initialData.projectTitle || "",
+        projectSummary: initialData.projectSummary || "",
+        country: initialData.country || "",
+        region: initialData.region || "",
+        implementingEntity: initialData.implementingEntity || "",
+        pppModel: initialData.pppModel || "",
+        projectType: initialData.projectType || "",
+        projectWebsite: initialData.projectWebsite || "",
+        contactPerson: initialData.contactPerson || "",
+        contactDetails: initialData.contactDetails || "",
+        projectDescription: initialData.projectDescription || "",
+        pifahPillar: initialData.pifahPillar || "",
+        alignmentToNationalPriorities: initialData.alignmentToNationalPriorities || "",
+        regionalIntegrationPotential: initialData.regionalIntegrationPotential || false,
+        regionalIntegrationDetails: initialData.regionalIntegrationDetails || "",
+        marketSize: initialData.marketSize || "",
+        targetPopulation: initialData.targetPopulation || "",
+        existingSolutions: initialData.existingSolutions || "",
+        uniqueSellingProposition: initialData.uniqueSellingProposition || "",
+        expectedHealthOutcomes: initialData.expectedHealthOutcomes || "",
+        economicBenefits: initialData.economicBenefits || "",
+        socialImpact: initialData.socialImpact || "",
+        contributionAreas: initialData.contributionAreas || [],
+        contributionDescription: initialData.contributionDescription || "",
+        environmentalConsiderations: initialData.environmentalConsiderations || "",
+        estimatedInvestment: initialData.estimatedInvestment || "",
+        costBreakdown: initialData.costBreakdown || "",
+        currentFundingModel: initialData.currentFundingModel || "",
+        proposedFinancingStructure: initialData.proposedFinancingStructure || "",
+        expectedReturn: initialData.expectedReturn || "",
+        currentStage: initialData.currentStage || "",
+        keyMilestones: initialData.keyMilestones || "",
+        governmentApprovals: initialData.governmentApprovals || false,
+        partnerships: initialData.partnerships || "",
+        regulatoryAlignment: initialData.regulatoryAlignment || "",
+        majorRisks: initialData.majorRisks || "",
+        mitigationMeasures: initialData.mitigationMeasures || "",
+        plannedStartDate: initialData.plannedStartDate || "",
+        implementationHorizon: initialData.implementationHorizon || "",
+        supportRequired: initialData.supportRequired || [],
+        otherNotes: initialData.otherNotes || "",
+      });
+    }
+  }, [initialData, isEditMode, reset]);
 
   const selectedPillar = watch("pifahPillar");
   const selectedCountry = watch("country");
@@ -133,16 +190,36 @@ export function ProjectSubmissionForm() {
 
   const submitMutation = useMutation({
     mutationFn: async (data: ProjectFormData) => {
-      const res = await apiRequest('POST', '/api/projects', data);
-      return res.json();
+      if (isEditMode && initialData) {
+        const res = await apiRequest('PATCH', `/api/projects/${initialData.id}/owner-update`, data);
+        return res.json();
+      } else {
+        const res = await apiRequest('POST', '/api/projects', data);
+        return res.json();
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
-      setSubmitted(true);
-      toast({
-        title: "Success!",
-        description: "Your project has been submitted successfully. A focal person will review it soon.",
-      });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects/my-projects'] });
+      if (initialData) {
+        queryClient.invalidateQueries({ queryKey: [`/api/projects/${initialData.id}`] });
+      }
+      
+      if (isEditMode) {
+        toast({
+          title: "Success!",
+          description: "Your project has been updated successfully.",
+        });
+        setTimeout(() => {
+          setLocation("/my-submissions");
+        }, 1000);
+      } else {
+        setSubmitted(true);
+        toast({
+          title: "Success!",
+          description: "Your project has been submitted successfully. A focal person will review it soon.",
+        });
+      }
     },
     onError: (error: any) => {
       if (isUnauthorizedError(error)) {
@@ -158,7 +235,7 @@ export function ProjectSubmissionForm() {
       }
       toast({
         title: "Error",
-        description: error.message || "Failed to submit project. Please try again.",
+        description: error.message || `Failed to ${isEditMode ? 'update' : 'submit'} project. Please try again.`,
         variant: "destructive",
       });
     },
@@ -230,7 +307,7 @@ export function ProjectSubmissionForm() {
           <div className="flex items-center gap-3">
             <FileText className="h-6 w-6 text-primary" />
             <div>
-              <CardTitle>PIFAH Project Submission</CardTitle>
+              <CardTitle>{isEditMode ? "Edit Project" : "PIFAH Project Submission"}</CardTitle>
               <CardDescription>Complete all required fields to submit your health investment project</CardDescription>
             </div>
           </div>
@@ -815,7 +892,9 @@ export function ProjectSubmissionForm() {
                 disabled={submitMutation.isPending}
                 data-testid="button-submit"
               >
-                {submitMutation.isPending ? "Submitting..." : "Submit Project"}
+                {submitMutation.isPending 
+                  ? (isEditMode ? "Updating..." : "Submitting...") 
+                  : (isEditMode ? "Update Project" : "Submit Project")}
               </Button>
             ) : (
               <Button

@@ -11,6 +11,8 @@ import AdminPage from "@/pages/AdminPage";
 import FocalPersonPage from "@/pages/FocalPersonPage";
 import ApproverPage from "@/pages/ApproverPage";
 import SubmitProjectPage from "@/pages/SubmitProjectPage";
+import MySubmissions from "@/pages/MySubmissions";
+import EditProject from "@/pages/EditProject";
 import FAQ from "@/pages/FAQ";
 import CommunityOfPractice from "@/pages/CommunityOfPractice";
 import NotFound from "@/pages/not-found";
@@ -30,6 +32,12 @@ function Router() {
       </Route>
       <Route path="/submit-project">
         {isAuthenticated ? <SubmitProjectPage /> : <Landing />}
+      </Route>
+      <Route path="/my-submissions">
+        {isAuthenticated ? <MySubmissions /> : <Landing />}
+      </Route>
+      <Route path="/edit-project/:id">
+        {isAuthenticated ? <EditProject /> : <Landing />}
       </Route>
       <Route path="/admin">
         {isAdmin ? <AdminPage /> : <Landing />}
