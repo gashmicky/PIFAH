@@ -18,9 +18,12 @@ type ViewMode = 'default' | 'region';
 
 export default function MapPage() {
   const { isAdmin, isFocalPerson, isApprover } = useAuth();
+  const isPrivilegedUser = isAdmin || isFocalPerson || isApprover;
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('region');
+  // Privileged users default to 'default' mode to see status-based colors
+  // Public users default to 'region' mode
+  const [viewMode, setViewMode] = useState<ViewMode>(isPrivilegedUser ? 'default' : 'region');
   const [zoom, setZoom] = useState(1);
 
   // Fetch app settings for logo

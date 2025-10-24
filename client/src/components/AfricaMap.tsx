@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Country } from "@shared/schema";
 import { CountryTooltip } from "./CountryTooltip";
+import { useAuth } from "@/hooks/useAuth";
 import africaMapSvg from "@/assets/africa-map.svg?raw";
 
 interface AfricaMapProps {
@@ -17,6 +18,11 @@ interface CountryStats {
   totalProjects: number;
   pillarCounts: Record<string, number>;
   projects: Array<{ id: string; title: string; pillar: string }>;
+}
+
+interface PrivilegedCountryStats extends CountryStats {
+  statusCounts: Record<string, number>;
+  projects: Array<{ id: string; title: string; pillar: string; status: string }>;
 }
 
 const svgIdToCountryId: Record<string, string> = {
@@ -35,6 +41,9 @@ const svgIdToCountryId: Record<string, string> = {
 };
 
 export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: AfricaMapProps) {
+  const { isAdmin, isFocalPerson, isApprover } = useAuth();
+  const isPrivilegedUser = isAdmin || isFocalPerson || isApprover;
+  
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -44,9 +53,19 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
     queryKey: ['/api/countries'],
   });
 
-  const { data: statistics = [] } = useQuery<CountryStats[]>({
+  // Fetch public statistics (approved only) for regular users
+  const { data: publicStatistics = [] } = useQuery<CountryStats[]>({
     queryKey: ['/api/countries/statistics'],
+    enabled: !isPrivilegedUser,
   });
+
+  // Fetch all statistics (including all statuses) for privileged users
+  const { data: privilegedStatistics = [] } = useQuery<PrivilegedCountryStats[]>({
+    queryKey: ['/api/countries/statistics/all'],
+    enabled: isPrivilegedUser,
+  });
+
+  const statistics = isPrivilegedUser ? privilegedStatistics : publicStatistics;
 
   const { data: regionColors = {} } = useQuery<Record<string, string>>({
     queryKey: ['/api/region-colors'],
@@ -106,11 +125,28 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
       const stats = statsMap.get(country.name);
       const hasProjects = stats && stats.totalProjects > 0;
 
-      let fillColor = '#CBD5E1';
+      let fillColor = '#CBD5E1'; // Default gray for no projects
       
-      if (viewMode === 'region') {
+      // Privileged users always see status-based colors in default mode
+      if (viewMode === 'default' && hasProjects && isPrivilegedUser) {
+        // Status-based coloring for privileged users
+        const privilegedStats = stats as PrivilegedCountryStats;
+        const statusCounts = privilegedStats.statusCounts || {};
+        
+        // Priority: Show most critical status first (with safe access)
+        if ((statusCounts.rejected || 0) > 0) {
+          fillColor = '#FEE2E2'; // Light red for rejected
+        } else if ((statusCounts.pending || 0) > 0) {
+          fillColor = '#FEF3C7'; // Light yellow for pending
+        } else if ((statusCounts.under_review || 0) > 0) {
+          fillColor = '#DBEAFE'; // Light blue for under review
+        } else if ((statusCounts.approved || 0) > 0) {
+          fillColor = '#D1FAE5'; // Light green for approved
+        }
+      } else if (viewMode === 'region') {
         fillColor = regionColors[country.region] || '#CBD5E1';
       } else if (hasProjects) {
+        // Public users only see approved projects in light green
         fillColor = '#D1FAE5'; // Very light green
       }
 
@@ -162,7 +198,7 @@ export function AfricaMap({ onCountryClick, searchQuery, viewMode, zoom = 1 }: A
     return () => {
       cleanupFunctions.forEach(cleanup => cleanup());
     };
-  }, [searchQuery, viewMode, filteredCountries, onCountryClick, countries, regionColors, zoom, statsMap, selectedCountry]);
+  }, [searchQuery, viewMode, filteredCountries, onCountryClick, countries, regionColors, zoom, statsMap, selectedCountry, isPrivilegedUser]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({ x: e.clientX, y: e.clientY });

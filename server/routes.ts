@@ -75,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get project statistics by country (for map visualization)
+  // Get project statistics by country (for map visualization - public view, approved only)
   app.get("/api/countries/statistics", async (_req, res) => {
     try {
       const projects = await storage.getApprovedProjects();
@@ -109,6 +109,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
             id: project.id,
             title: project.projectTitle,
             pillar: project.pifahPillar
+          });
+        }
+      });
+      
+      // Convert to array
+      const statisticsArray = Array.from(statsMap.entries()).map(([country, stats]) => ({
+        country,
+        ...stats
+      }));
+      
+      res.json(statisticsArray);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get ALL project statistics by country (for admin/focal/approver - includes all statuses)
+  app.get("/api/countries/statistics/all", isAuthenticated, requireRole(['admin', 'focal_person', 'approver']), async (_req, res) => {
+    try {
+      const allProjects = await storage.getAllProjectsForStats();
+      const countries = await storage.getCountries();
+      
+      // Create a map of country statistics with status breakdown
+      const statsMap = new Map<string, { 
+        countryName: string;
+        totalProjects: number; 
+        pillarCounts: Record<string, number>;
+        statusCounts: Record<string, number>;
+        projects: Array<{ id: string; title: string; pillar: string; status: string }>;
+      }>();
+      
+      // Initialize stats for all countries with all possible status values
+      countries.forEach(country => {
+        statsMap.set(country.name, {
+          countryName: country.name,
+          totalProjects: 0,
+          pillarCounts: {},
+          statusCounts: { 
+            pending: 0, 
+            under_review: 0, 
+            approved: 0, 
+            rejected: 0 
+          },
+          projects: []
+        });
+      });
+      
+      // Aggregate project data by country
+      allProjects.forEach(project => {
+        const stats = statsMap.get(project.country);
+        if (stats) {
+          stats.totalProjects++;
+          stats.pillarCounts[project.pifahPillar] = (stats.pillarCounts[project.pifahPillar] || 0) + 1;
+          
+          // Only count known statuses, ignore unknown ones
+          const validStatuses = ['pending', 'under_review', 'approved', 'rejected'];
+          if (validStatuses.includes(project.status)) {
+            stats.statusCounts[project.status] = (stats.statusCounts[project.status] || 0) + 1;
+          }
+          
+          stats.projects.push({
+            id: project.id,
+            title: project.projectTitle,
+            pillar: project.pifahPillar,
+            status: project.status
           });
         }
       });
