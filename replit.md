@@ -155,6 +155,14 @@ Each pillar has primary, light, and dark color variants for consistent UI visual
 
 ### Project Management Features
 
+**My Submissions Page** (/my-submissions)
+- View all projects submitted by the current user
+- Displays project title, country, PIFAH pillar, status, and submission date
+- Edit button available for projects with status "pending" or "under_review"
+- Status badges with color coding (pending, under_review, approved, rejected)
+- Info card explaining edit permissions
+- Link to submit new projects
+
 **Admin Dashboard** (/admin)
 - Comprehensive projects table with all submission fields
 - Advanced filtering: status, country, PIFAH pillar, search
@@ -173,6 +181,16 @@ Each pillar has primary, light, and dark color variants for consistent UI visual
 - Table view with projects pending final approval
 - Interactive map view showing approved projects
 - Filter and search capabilities
+
+**Project Editing Feature**
+- Project owners can edit their own submissions before approval
+- Backend validates ownership and project status before allowing edits
+- Edit endpoint: `/api/projects/:id/owner-update` (PATCH)
+- Editable statuses: pending, under_review
+- Non-editable statuses: approved, rejected
+- Workflow fields (submittedBy, status, timestamps) are preserved during edits
+- Form pre-populated with existing project data
+- Success toast and redirect to My Submissions after update
 
 **ProjectsTable Component**
 - Multi-column sortable table with all project fields
