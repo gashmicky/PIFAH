@@ -13,7 +13,7 @@ A comprehensive project management application for the Programme for Investment 
 - **FAQ Section**: Comprehensive frequently asked questions covering general information, projects, RECs, technical support, and investment financing
 - **AI Chatbot Assistant**: OpenAI-powered chatbot available on all pages (public and authenticated) with contextual knowledge of PIFAH pillars, RECs, project submission process, and platform features
 
-The application features role-based access control, pillar-based color visualization, approval workflow management, REC stats tracking, public theme toggle, AI assistance, and responsive design with light theme default and optional dark mode.
+The application features role-based access control with admin users having combined focal person and approver permissions, pillar-based color visualization, approval workflow management, REC stats tracking, public theme toggle, AI assistance, and responsive design with light theme default and optional dark mode.
 
 ## User Preferences
 
@@ -143,7 +143,7 @@ Each pillar has primary, light, and dark color variants for consistent UI visual
 - Role-specific route protection enforced in frontend routing
 
 **User Roles & Permissions**
-- **Admin**: Full access to all projects, settings, country management, color customization
+- **Admin**: Full access to all projects, settings, country management, color customization. Admin users also have all permissions of Focal Person and Approver roles, allowing them to participate in the entire approval workflow.
 - **Focal Person**: Review and approve regional project submissions, view all projects
 - **Approver**: Provide final approval for projects reviewed by focal persons
 - **Public**: View approved projects on public map, submit new project proposals

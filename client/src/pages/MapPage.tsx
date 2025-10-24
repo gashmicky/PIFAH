@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Globe, Settings, PlusCircle, FileText } from "lucide-react";
+import { Globe, Settings, PlusCircle, FileText, UserCheck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Chatbot } from "@/components/Chatbot";
@@ -12,10 +12,12 @@ import { CountryDetailsPanel } from "@/components/CountryDetailsPanel";
 import { Country } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 
 type ViewMode = 'default' | 'region';
 
 export default function MapPage() {
+  const { isAdmin, isFocalPerson, isApprover } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('region');
@@ -96,12 +98,30 @@ export default function MapPage() {
           >
             Regions
           </Button>
-          <Link href="/admin">
-            <Button variant="ghost" size="sm" data-testid="button-admin">
-              <Settings className="h-4 w-4 mr-2" />
-              Admin
-            </Button>
-          </Link>
+          {(isFocalPerson || isAdmin) && (
+            <Link href="/focal-person">
+              <Button variant="ghost" size="sm" data-testid="button-focal-person">
+                <UserCheck className="h-4 w-4 mr-2" />
+                Focal Person
+              </Button>
+            </Link>
+          )}
+          {(isApprover || isAdmin) && (
+            <Link href="/approver">
+              <Button variant="ghost" size="sm" data-testid="button-approver">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Approver
+              </Button>
+            </Link>
+          )}
+          {isAdmin && (
+            <Link href="/admin">
+              <Button variant="ghost" size="sm" data-testid="button-admin">
+                <Settings className="h-4 w-4 mr-2" />
+                Admin
+              </Button>
+            </Link>
+          )}
           <ThemeToggle />
           <Button 
             variant="outline" 
